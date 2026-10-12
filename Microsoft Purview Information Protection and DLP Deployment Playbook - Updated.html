@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microsoft Purview Information Protection and DLP Deployment Playbook</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cp-bg);
+      color: var(--cp-text);
+      font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--cp-link); }
+    .shell { max-width: 1600px; margin: 0 auto; padding: 28px; }
+    .skip-link {
+      position: fixed;
+      left: 12px;
+      top: -60px;
+      z-index: 100;
+      padding: 10px 14px;
+      border-radius: 0.625rem;
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+      font-weight: 700;
+    }
+    .skip-link:focus { top: 12px; }
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 10px;
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      background: var(--cp-panel-strong);
+      box-shadow: 0 0 2px var(--cp-border), 0 1px 2px var(--cp-border);
+    }
+    .top-nav a, .secondary {
+      min-height: 38px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 8px 11px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .top-nav a:hover, .secondary:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+    .hero {
+      background: var(--cp-surface);
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 0 2px var(--cp-border), 0 1px 2px var(--cp-border);
+    }
+    .eyebrow {
+      color: var(--cp-accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 6px 0 8px; font-size: clamp(30px, 5vw, 54px); line-height: 1.05; letter-spacing: -.035em; }
+    h2 { margin: 0 0 16px; font-size: 26px; letter-spacing: -.02em; }
+    h3 { margin: 0 0 8px; font-size: 18px; }
+    p { margin: 0; }
+    .lede { max-width: 980px; color: var(--cp-text-muted); font-size: 17px; }
+    .notice {
+      margin-top: 20px;
+      border-left: 4px solid var(--cp-accent);
+      background: var(--cp-accent-soft);
+      padding: 14px 16px;
+      border-radius: 0.625rem;
+      color: var(--cp-text-muted);
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .metric, .panel, .card {
+      background: var(--cp-surface);
+      border: 1px solid var(--cp-border);
+      box-shadow: 0 0 2px var(--cp-border), 0 1px 2px var(--cp-border);
+    }
+    .metric { padding: 16px; border-radius: 16px; }
+    .metric strong { display: block; font-size: 28px; color: var(--cp-accent); line-height: 1; }
+    .metric span { color: var(--cp-text-muted); font-size: 13px; }
+    .section { margin-top: 28px; }
+    .panel { padding: 22px; border-radius: 16px; }
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .index-group {
+      padding: 16px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+    .index-group h3 { color: var(--cp-accent); }
+    .index-list { display: grid; gap: 6px; }
+    .index-link {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      padding: 6px 8px;
+      border-radius: 0.5rem;
+      text-decoration: none;
+    }
+    .index-link:hover { background: var(--cp-accent-soft); }
+    .index-link .id { flex: 0 0 auto; }
+    .portal-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; }
+    .portal-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      border: 1px solid var(--cp-link);
+      border-radius: 0.625rem;
+      padding: 6px 9px;
+      color: var(--cp-link);
+      background: var(--cp-surface);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .portal-link:hover { background: var(--cp-accent-soft); }
+    .card:target { outline: 3px solid var(--cp-accent); outline-offset: 3px; }
+    .card.completed { border-color: var(--cp-success); }
+    .completion-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--cp-text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .completion-control input {
+      width: 18px;
+      min-height: 18px;
+      height: 18px;
+      accent-color: var(--cp-success);
+    }
+    .posture-summary {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+    .posture-score {
+      display: grid;
+      place-items: center;
+      width: 150px;
+      height: 150px;
+      border: 12px solid var(--cp-accent-soft);
+      border-radius: 50%;
+      color: var(--cp-accent);
+      font-size: 32px;
+      font-weight: 800;
+    }
+    .posture-meter {
+      height: 16px;
+      overflow: hidden;
+      border: 1px solid var(--cp-border);
+      border-radius: 999px;
+      background: var(--cp-surface-soft);
+    }
+    .posture-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cp-accent), var(--cp-success));
+      transition: width .25s ease;
+    }
+    .posture-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .posture-item {
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+    .posture-item b { display: block; margin-bottom: 5px; }
+    .posture-item span { color: var(--cp-text-muted); font-size: 13px; }
+    .index-link.done { color: var(--cp-success); }
+    .action-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .field { display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label, .field > span { font-size: 12px; font-weight: 700; color: var(--cp-text-muted); }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 9px 10px;
+    }
+    .wizard-result {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--cp-accent);
+      border-radius: 0.625rem;
+      background: var(--cp-accent-soft);
+    }
+    .readiness-grid, .fact-grid, .track-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .readiness-item, .fact-card, .track-card {
+      padding: 14px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+    .readiness-item label { display: flex; align-items: start; gap: 8px; font-weight: 700; }
+    .readiness-item input { width: 18px; min-height: 18px; height: 18px; accent-color: var(--cp-success); }
+    .fact-card b, .track-card b { display: block; margin-bottom: 6px; color: var(--cp-accent); }
+    .fact-card p, .track-card p { color: var(--cp-text-muted); font-size: 13px; }
+    .status-badge {
+      display: inline-flex;
+      padding: 3px 8px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text-muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .status-badge.active, .status-badge.approved { border-color: var(--cp-success); color: var(--cp-success); }
+    .status-badge.blocked { border-color: var(--cp-danger); color: var(--cp-danger); }
+    .status-badge.simulation, .status-badge.pilot, .status-badge.exception { border-color: var(--cp-warning); color: var(--cp-warning); }
+    .record-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .record-summary div {
+      padding: 8px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      font-size: 12px;
+    }
+    .test-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .test-list label { display: flex; gap: 7px; align-items: start; padding: 7px; border: 1px solid var(--cp-border); border-radius: 0.625rem; }
+    .test-list input { width: 17px; min-height: 17px; height: 17px; accent-color: var(--cp-success); }
+    .privacy-banner { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .privacy-banner button { flex: 0 0 auto; }
+    .trend-grid, .practice-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .trend, .practice {
+      padding: 16px;
+      background: var(--cp-surface-soft);
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+    }
+    .trend b, .practice b { display: block; margin-bottom: 6px; }
+    .trend p, .practice p { color: var(--cp-text-muted); font-size: 14px; }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(220px, 1.4fr) repeat(4, minmax(150px, .7fr)) auto;
+      gap: 10px;
+      padding: 14px;
+      margin-top: 28px;
+      background: var(--cp-panel-strong);
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      box-shadow: 0 0 2px var(--cp-border), 0 1px 2px var(--cp-border);
+    }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 8px 10px;
+    }
+    input:focus, select:focus, button:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 2px; }
+    .primary {
+      min-height: 42px;
+      border: 1px solid var(--cp-accent);
+      border-radius: 0.625rem;
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+      padding: 8px 14px;
+      font-weight: 700;
+    }
+    .primary:hover { background: var(--cp-accent-hover); }
+    .view-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .tab {
+      border: 1px solid var(--cp-border);
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      border-radius: 0.625rem;
+      padding: 8px 12px;
+    }
+    .tab.active { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+    .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .chart-item { padding: 12px; border: 1px solid var(--cp-border); border-radius: 0.625rem; background: var(--cp-surface-soft); }
+    .chart-label { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 7px; font-size: 13px; }
+    .bar { height: 8px; overflow: hidden; border-radius: 0.625rem; background: var(--cp-border); }
+    .bar span { display: block; height: 100%; background: var(--cp-accent); border-radius: 0.625rem; }
+    .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .muted { color: var(--cp-text-muted); }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .card { padding: 18px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .id { font-family: Consolas, "Courier New", Courier, monospace; color: var(--cp-accent); font-size: 12px; font-weight: 700; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge {
+      display: inline-flex;
+      padding: 3px 8px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.strong { border-color: var(--cp-success); color: var(--cp-success); }
+    .badge.moderate { border-color: var(--cp-warning); color: var(--cp-warning); }
+    .problem { color: var(--cp-text-muted); font-size: 14px; }
+    .details {
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text);
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+    .details:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+    .table-wrap { overflow: auto; border: 1px solid var(--cp-border); border-radius: 16px; }
+    table { width: 100%; min-width: 1550px; border-collapse: collapse; background: var(--cp-surface); }
+    th, td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid var(--cp-border); font-size: 13px; }
+    th { position: sticky; top: 0; background: var(--cp-bg-elevated); color: var(--cp-text); z-index: 1; }
+    td { color: var(--cp-text-muted); }
+    td:first-child { min-width: 150px; }
+    td:nth-child(2) { color: var(--cp-text); font-weight: 700; min-width: 220px; }
+    .source-list { display: grid; gap: 8px; }
+    .source {
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      font-size: 13px;
+    }
+    .source small { display: block; color: var(--cp-text-muted); margin-top: 3px; }
+    dialog {
+      width: min(920px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 0;
+      box-shadow: var(--cp-shadow);
+    }
+    dialog::backdrop { background: var(--cp-overlay); }
+    .dialog-head { position: sticky; top: 0; display: flex; justify-content: space-between; gap: 16px; padding: 18px 20px; background: var(--cp-panel-strong); border-bottom: 1px solid var(--cp-border); }
+    .close { border: 1px solid var(--cp-border); border-radius: 0.625rem; background: var(--cp-surface); color: var(--cp-text); width: 38px; height: 38px; }
+    .dialog-body { padding: 20px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .detail-block { border: 1px solid var(--cp-border); border-radius: 0.625rem; padding: 14px; background: var(--cp-surface-soft); }
+    .detail-block.full { grid-column: 1 / -1; }
+    .detail-block b { display: block; margin-bottom: 5px; color: var(--cp-accent); }
+    .detail-block p { color: var(--cp-text-muted); }
+    .empty { grid-column: 1 / -1; text-align: center; padding: 50px; color: var(--cp-text-muted); border: 1px dashed var(--cp-border-strong); border-radius: 16px; }
+    .footer { margin: 28px 0 12px; color: var(--cp-text-muted); font-size: 12px; text-align: center; }
+    @media (max-width: 1150px) {
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .trend-grid, .practice-grid { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { grid-template-columns: repeat(2, 1fr); position: static; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .shell { padding: 14px; }
+      .hero, .panel { padding: 18px; }
+      .metrics, .trend-grid, .practice-grid, .toolbar, .chart-grid, .cards, .detail-grid, .index-grid, .posture-grid, .posture-summary, .form-grid, .readiness-grid, .fact-grid, .track-grid, .record-summary, .test-list { grid-template-columns: 1fr; }
+      .posture-score { width: 120px; height: 120px; }
+      .metric { min-height: 90px; }
+      .catalog-head { display: block; }
+      .detail-block.full { grid-column: auto; }
+    }
+    @media print {
+      .toolbar, .view-tabs, .details, dialog { display: none; }
+      .shell { max-width: none; padding: 0; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .panel, .hero, .card { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="liveRegion" role="status" aria-live="polite" style="position:absolute;left:-9999px"></div>
+  <main class="shell" id="main-content">
+    <nav class="top-nav" aria-label="Playbook sections">
+      <a href="#guided-selector">Choose scenario</a>
+      <a href="#readiness">Readiness</a>
+      <a href="#scenario-index">Index</a>
+      <a href="#compliance-posture">Posture</a>
+      <a href="#scenario-catalog">Catalog</a>
+    </nav>
+    <section class="hero">
+      <div class="eyebrow">Microsoft Purview Information Protection</div>
+      <h1>Information Protection and DLP Deployment Playbook</h1>
+      <p class="lede">A guided, evidence-based deployment deck for service-side and client-side auto-labeling, sensitive information types, classifiers, recommended labels, user-defined permissions, DLP integration, operational readiness, validation, and compliance posture.</p>
+      <div class="notice"><b>Evidence note:</b> These are reusable implementation patterns, not named-customer case studies. Expected outcomes are not presented as universal measured results.</div>
+      <div class="notice privacy-banner" id="privacyBanner">
+        <span><b>Local data notice:</b> Progress, implementation records, owners, evidence references, and exceptions are stored only in this browser. Clearing browser data removes them. Export JSON for a portable backup.</span>
+        <button class="secondary" id="dismissPrivacy">Dismiss</button>
+      </div>
+      <div class="metrics" id="metrics"><div class="metric"><strong>44</strong><span>Consolidated scenarios</span></div><div class="metric"><strong>27</strong><span>Service-led patterns</span></div><div class="metric"><strong>12</strong><span>Client-led patterns</span></div><div class="metric"><strong>5</strong><span>Recommendation scenarios</span></div><div class="metric"><strong>0%</strong><span>Checklist completion</span></div><div class="metric"><strong>0%</strong><span>Evidence-ready posture</span></div></div>
+      <div class="action-bar">
+        <button class="primary" id="exportJson">Export full playbook JSON</button>
+        <button class="secondary" id="importJsonButton">Import playbook JSON</button>
+        <input id="importJson" type="file" accept="application/json" hidden="">
+        <button class="secondary" id="clearData">Clear local progress</button>
+      </div>
+    </section>
+
+    <section class="section panel" id="guided-selector">
+      <h2>Guided Scenario Selector</h2>
+      <p class="muted" style="margin-bottom:16px">Answer the deployment questions to generate a recommended control pattern and matching scenarios.</p>
+      <div class="form-grid">
+        <div class="field"><label for="wizardOutcome">Business outcome</label><select id="wizardOutcome"><option value="">Select outcome</option><option>Discover sensitive data</option><option>Educate users</option><option>Apply persistent classification</option><option>Restrict sharing or egress</option><option>Remediate historical content</option><option>Protect AI interactions</option></select></div>
+        <div class="field"><label for="wizardLocation">Data location</label><select id="wizardLocation"><option value="">Select location</option><option>Office apps</option><option>Exchange</option><option>SharePoint/OneDrive</option><option>Endpoint devices</option><option>Teams/sites/groups</option><option>On-premises repositories</option><option>Copilot or AI services</option></select></div>
+        <div class="field"><label for="wizardTiming">Detection timing</label><select id="wizardTiming"><option value="">Select timing</option><option>During authoring</option><option>When stored or emailed</option><option>During endpoint action</option><option>Retroactively</option></select></div>
+        <div class="field"><label for="wizardAction">Desired action</label><select id="wizardAction"><option value="">Select action</option><option>Recommend</option><option>Automatically label</option><option>Encrypt or restrict access</option><option>Audit or warn</option><option>Block</option></select></div>
+        <div class="field"><label for="wizardTravel">Protection travels with file</label><select id="wizardTravel"><option value="">Select</option><option>Yes</option><option>No</option><option>Unsure</option></select></div>
+        <div class="field"><label for="wizardMaturity">Customer maturity</label><select id="wizardMaturity"><option value="">Select maturity</option><option>No taxonomy</option><option>Labels exist</option><option>Labels and DLP operational</option><option>Scaling or remediation</option></select></div>
+      </div>
+      <div class="action-bar"><button class="primary" id="runWizard">Recommend scenarios</button><button class="secondary" id="resetWizard">Reset</button></div>
+      <div id="wizardResult"></div>
+    </section>
+
+    <section class="section panel" id="readiness">
+      <h2>Deployment Readiness Gate</h2>
+      <p class="muted" style="margin-bottom:16px">Complete these shared prerequisites before enforcing labeling or DLP scenarios.</p>
+      <div class="readiness-grid" id="readinessGrid">
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="license"><span>Licensing confirmed</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Validate licensing by feature and workload, not with one generic E3/E5 assumption.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="roles"><span>Least-privilege roles assigned</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Confirm Information Protection, DLP, Content Explorer, Audit, and delegated administration roles.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="taxonomy"><span>Label taxonomy approved</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Business owners approve label names, priority, descriptions, encryption, and downgrade behaviour.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="published"><span>Labels created and published</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Confirm target users receive the expected label policy and client applications support it.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="spo"><span>SharePoint/OneDrive processing enabled</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Enable sensitivity-label processing and validate supported file and encryption states.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="audit"><span>Audit and monitoring available</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Confirm Activity Explorer, Audit, alerts, Content Explorer roles, and retention requirements.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="devices"><span>Endpoint devices healthy</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Onboard devices, validate supported versions, connectivity, and advanced classification where required.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="validators"><span>Business validators nominated</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Administrators validate configuration; data owners validate whether sampled matches are truly sensitive.</p>
+        </div>
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="support"><span>Support and rollback prepared</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">Document owner, diagnostic evidence, escalation path, rollback action, and change window.</p>
+        </div></div>
+    </section>
+
+    <section class="section panel" id="scenario-index">
+      <h2>Scenario Index</h2>
+      <p class="muted" style="margin-bottom:16px">Select a topic to jump to its scenario card. Each scenario includes direct links to the Purview configuration blades required for deployment.</p>
+      <div class="index-grid" id="scenarioIndex">
+        <div class="index-group">
+          <h3>Service-Side AutoLabel</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-SS-01" data-scenario-id="SS-01">
+              <span class="id">SS-01</span><span>Historical SharePoint financial records remediation</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-02" data-scenario-id="SS-02">
+              <span class="id">SS-02</span><span>OneDrive customer PII remediation</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-03" data-scenario-id="SS-03">
+              <span class="id">SS-03</span><span>Exchange outbound payment-card protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-04" data-scenario-id="SS-04">
+              <span class="id">SS-04</span><span>Inbound healthcare email classification</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-05" data-scenario-id="SS-05">
+              <span class="id">SS-05</span><span>PDF legal-contract classification in OneDrive</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-06" data-scenario-id="SS-06">
+              <span class="id">SS-06</span><span>OCR classification for scanned identity records</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-07" data-scenario-id="SS-07">
+              <span class="id">SS-07</span><span>Secure-by-default baseline for unlabeled repositories</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-08" data-scenario-id="SS-08">
+              <span class="id">SS-08</span><span>CAD and engineering-file contextual labeling</span>
+            </a>
+            <a class="index-link " href="#scenario-SS-09" data-scenario-id="SS-09">
+              <span class="id">SS-09</span><span>Large-estate policy partitioning and wave rollout</span>
+            </a>
+          </div>
+        </div>
+        <div class="index-group">
+          <h3>Client-Side AutoLabel</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-CL-01" data-scenario-id="CL-01">
+              <span class="id">CL-01</span><span>Real-time HR PII labeling in Word</span>
+            </a>
+            <a class="index-link " href="#scenario-CL-02" data-scenario-id="CL-02">
+              <span class="id">CL-02</span><span>Credit-card data labeling in Excel</span>
+            </a>
+            <a class="index-link " href="#scenario-CL-03" data-scenario-id="CL-03">
+              <span class="id">CL-03</span><span>MNPI email classification during compose</span>
+            </a>
+            <a class="index-link " href="#scenario-CL-04" data-scenario-id="CL-04">
+              <span class="id">CL-04</span><span>Financial-report protection in PowerPoint</span>
+            </a>
+            <a class="index-link " href="#scenario-CL-05" data-scenario-id="CL-05">
+              <span class="id">CL-05</span><span>Label-to-Endpoint-DLP protection chain</span>
+            </a>
+            <a class="index-link " href="#scenario-CL-06" data-scenario-id="CL-06">
+              <span class="id">CL-06</span><span>Source-code classification during authoring</span>
+            </a>
+          </div>
+        </div>
+        <div class="index-group">
+          <h3>SIT-Based Use Case</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-SIT-01" data-scenario-id="SIT-01">
+              <span class="id">SIT-01</span><span>Credit card number protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-02" data-scenario-id="SIT-02">
+              <span class="id">SIT-02</span><span>Passport number and identity-document protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-03" data-scenario-id="SIT-03">
+              <span class="id">SIT-03</span><span>US Social Security number protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-04" data-scenario-id="SIT-04">
+              <span class="id">SIT-04</span><span>Aadhaar identity-data protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-05" data-scenario-id="SIT-05">
+              <span class="id">SIT-05</span><span>Tax identifier protection across jurisdictions</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-06" data-scenario-id="SIT-06">
+              <span class="id">SIT-06</span><span>Banking and account-information protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-07" data-scenario-id="SIT-07">
+              <span class="id">SIT-07</span><span>Healthcare record and PHI protection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-08" data-scenario-id="SIT-08">
+              <span class="id">SIT-08</span><span>Customer PII bundle detection</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-09" data-scenario-id="SIT-09">
+              <span class="id">SIT-09</span><span>Proprietary part-number custom SIT</span>
+            </a>
+            <a class="index-link " href="#scenario-SIT-10" data-scenario-id="SIT-10">
+              <span class="id">SIT-10</span><span>R&amp;D keyword-dictionary protection</span>
+            </a>
+          </div>
+        </div>
+        <div class="index-group">
+          <h3>Conditions &amp; Classifiers</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-CC-01" data-scenario-id="CC-01">
+              <span class="id">CC-01</span><span>EDM customer account-number matching</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-02" data-scenario-id="CC-02">
+              <span class="id">CC-02</span><span>EDM employee and patient-record matching</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-03" data-scenario-id="CC-03">
+              <span class="id">CC-03</span><span>Legal-contract trainable classifier</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-04" data-scenario-id="CC-04">
+              <span class="id">CC-04</span><span>Research-report custom classifier</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-05" data-scenario-id="CC-05">
+              <span class="id">CC-05</span><span>Document fingerprint for standard consent forms</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-06" data-scenario-id="CC-06">
+              <span class="id">CC-06</span><span>Multi-condition national-ID precision rule</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-07" data-scenario-id="CC-07">
+              <span class="id">CC-07</span><span>Confidence-tiered PCI policy</span>
+            </a>
+            <a class="index-link " href="#scenario-CC-08" data-scenario-id="CC-08">
+              <span class="id">CC-08</span><span>Library context plus content escalation</span>
+            </a>
+          </div>
+        </div>
+        <div class="index-group">
+          <h3>Recommended Label</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-RL-01" data-scenario-id="RL-01">
+              <span class="id">RL-01</span><span>Outlook PII recommendation as an adoption nudge</span>
+            </a>
+            <a class="index-link " href="#scenario-RL-02" data-scenario-id="RL-02">
+              <span class="id">RL-02</span><span>Legal-document recommendation in Word</span>
+            </a>
+            <a class="index-link " href="#scenario-RL-03" data-scenario-id="RL-03">
+              <span class="id">RL-03</span><span>Phased healthcare recommendation rollout</span>
+            </a>
+            <a class="index-link " href="#scenario-RL-04" data-scenario-id="RL-04">
+              <span class="id">RL-04</span><span>Recommendation with downgrade justification</span>
+            </a>
+            <a class="index-link " href="#scenario-RL-05" data-scenario-id="RL-05">
+              <span class="id">RL-05</span><span>Recommended UDP label for document collaboration</span>
+            </a>
+          </div>
+        </div>
+        <div class="index-group">
+          <h3>User-Defined Permissions</h3>
+          <div class="index-list">
+            <a class="index-link " href="#scenario-UDP-01" data-scenario-id="UDP-01">
+              <span class="id">UDP-01</span><span>Executive and board Do Not Forward email</span>
+            </a>
+            <a class="index-link " href="#scenario-UDP-02" data-scenario-id="UDP-02">
+              <span class="id">UDP-02</span><span>External partner Encrypt-Only email</span>
+            </a>
+            <a class="index-link " href="#scenario-UDP-03" data-scenario-id="UDP-03">
+              <span class="id">UDP-03</span><span>Legal matter document with custom recipients</span>
+            </a>
+            <a class="index-link " href="#scenario-UDP-04" data-scenario-id="UDP-04">
+              <span class="id">UDP-04</span><span>Project-based contractor access</span>
+            </a>
+            <a class="index-link " href="#scenario-UDP-05" data-scenario-id="UDP-05">
+              <span class="id">UDP-05</span><span>M&amp;A deal-document collaboration</span>
+            </a>
+            <a class="index-link " href="#scenario-UDP-06" data-scenario-id="UDP-06">
+              <span class="id">UDP-06</span><span>Preserve legacy custom permissions during modernization</span>
+            </a>
+          </div>
+        </div></div>
+    </section>
+
+    <section class="section panel" id="compliance-posture">
+      <h2>Implementation Compliance Posture</h2>
+      <div id="postureSummary">
+        <div class="posture-summary">
+          <div class="posture-score">0%</div>
+          <div>
+            <h3>0 of 44 scenarios completed</h3>
+            <p class="muted" style="margin-bottom:10px">44 scenarios remain to reach the catalog's full implementation posture.</p>
+            <div class="posture-meter" role="progressbar" aria-label="Overall implementation compliance posture" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="posture-fill" style="width:0%"></div>
+            </div>
+            <p class="muted" style="margin-top:10px"><b>0 evidence-ready (0%)</b>: Active with approval, approver, and evidence URL, or covered by a time-bound approved exception.</p>
+          </div>
+        </div></div>
+      <div class="posture-grid" id="postureBreakdown"><div class="posture-item">
+          <b>Service-Side AutoLabel</b>
+          <span>0 of 9 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div><div class="posture-item">
+          <b>Client-Side AutoLabel</b>
+          <span>0 of 6 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div><div class="posture-item">
+          <b>SIT-Based Use Case</b>
+          <span>0 of 10 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div><div class="posture-item">
+          <b>Conditions &amp; Classifiers</b>
+          <span>0 of 8 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div><div class="posture-item">
+          <b>Recommended Label</b>
+          <span>0 of 5 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div><div class="posture-item">
+          <b>User-Defined Permissions</b>
+          <span>0 of 6 completed (0%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:0%"></div></div>
+        </div></div>
+      <div class="notice"><b>Tracking note:</b> Completion is stored locally in this browser for this catalog. Export the CSV to retain or share a point-in-time completion record.</div>
+    </section>
+
+    <section class="toolbar" aria-label="Scenario filters">
+      <input id="search" type="search" placeholder="Search scenario, problem, trigger, solution...">
+      <select id="featureFilter" aria-label="Filter by feature"><option value="">All features</option><option value="Client-Side AutoLabel">Client-Side AutoLabel</option><option value="Conditions &amp; Classifiers">Conditions &amp; Classifiers</option><option value="Recommended Label">Recommended Label</option><option value="Service-Side AutoLabel">Service-Side AutoLabel</option><option value="SIT-Based Use Case">SIT-Based Use Case</option><option value="User-Defined Permissions">User-Defined Permissions</option></select>
+      <select id="complianceFilter" aria-label="Filter by compliance driver"><option value="">All compliance drivers</option><option value="Data Protection">Data Protection</option><option value="Financial Regulations">Financial Regulations</option><option value="Government">Government</option><option value="Healthcare">Healthcare</option><option value="Intellectual Property">Intellectual Property</option><option value="Privacy">Privacy</option></select>
+      <select id="detectionFilter" aria-label="Filter by detection method"><option value="">All detection methods</option><option value="Classifier + User Decision">Classifier + User Decision</option><option value="Confidence Level">Confidence Level</option><option value="Custom Classifier">Custom Classifier</option><option value="Custom SIT">Custom SIT</option><option value="Default / Label State">Default / Label State</option><option value="Document Fingerprint">Document Fingerprint</option><option value="EDM">EDM</option><option value="Keyword">Keyword</option><option value="Label Signal">Label Signal</option><option value="Metadata">Metadata</option><option value="Metadata + Classifier">Metadata + Classifier</option><option value="Multi-condition">Multi-condition</option><option value="Named Entity">Named Entity</option><option value="OCR + SIT">OCR + SIT</option><option value="Policy Scope">Policy Scope</option><option value="SIT">SIT</option><option value="SIT + Existing Protection State">SIT + Existing Protection State</option><option value="SIT or Classifier">SIT or Classifier</option><option value="Trainable Classifier">Trainable Classifier</option><option value="User Decision">User Decision</option><option value="User Decision + Metadata">User Decision + Metadata</option></select>
+      <select id="outcomeFilter" aria-label="Filter by business outcome"><option value="">All business outcomes</option><option value="Compliance Improvement">Compliance Improvement</option><option value="Data Protection">Data Protection</option><option value="Governance">Governance</option><option value="Risk Reduction">Risk Reduction</option><option value="User Productivity">User Productivity</option></select>
+      <button class="primary" id="export">Export CSV</button>
+    </section>
+
+    <section class="section panel">
+      <h2>Dashboard Views</h2>
+      <div class="view-tabs" id="viewTabs">
+        <button class="tab active" data-view="feature">By Feature</button>
+        <button class="tab" data-view="compliance">By Compliance Driver</button>
+        <button class="tab" data-view="detection">By Detection Method</button>
+        <button class="tab" data-view="outcome">By Business Outcome</button>
+      </div>
+      <div class="chart-grid" id="chart"><div class="chart-item"><div class="chart-label"><span>Service-Side AutoLabel</span><b>9</b></div><div class="bar"><span style="width:100%"></span></div></div><div class="chart-item"><div class="chart-label"><span>Client-Side AutoLabel</span><b>6</b></div><div class="bar"><span style="width:67%"></span></div></div></div>
+    </section>
+
+    <section class="section" id="scenario-catalog">
+      <div class="catalog-head">
+        <div><h2>Scenario Catalog</h2><p class="muted" id="resultCount">15 of 44 scenarios shown</p></div>
+        <select id="displayMode" aria-label="Choose catalog display" style="max-width:220px"><option value="cards">Card view</option><option value="table">Table view</option></select>
+      </div>
+      <div class="cards" id="cards">
+        <article class="card " id="scenario-SS-01">
+          <div class="card-top"><div><div class="id">SS-01</div><h3>Historical SharePoint financial records remediation</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-01">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - SharePoint</span><span class="badge">SIT</span></div>
+          <p class="problem">Large volumes of unlabeled legacy financial files remain searchable and shareable without consistent protection.</p>
+          <div class="badge-row"><span class="badge">Financial Regulations</span><span class="badge">Compliance Improvement</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-01">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-02">
+          <div class="card-top"><div><div class="id">SS-02</div><h3>OneDrive customer PII remediation</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-02">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - OneDrive</span><span class="badge">SIT</span></div>
+          <p class="problem">Personal working files in OneDrive contain customer PII that users did not label during creation.</p>
+          <div class="badge-row"><span class="badge">Privacy</span><span class="badge">Risk Reduction</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-02">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-03">
+          <div class="card-top"><div><div class="id">SS-03</div><h3>Exchange outbound payment-card protection</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-03">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - Exchange in transit</span><span class="badge">SIT</span></div>
+          <p class="problem">Employees can send cardholder data in email bodies or supported attachments without selecting the correct label.</p>
+          <div class="badge-row"><span class="badge">Financial Regulations</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-03">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-04">
+          <div class="card-top"><div><div class="id">SS-04</div><h3>Inbound healthcare email classification</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-04">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - Exchange in transit</span><span class="badge">Named Entity</span></div>
+          <p class="problem">External laboratories and partners send PHI that arrives without the organization's sensitivity labels.</p>
+          <div class="badge-row"><span class="badge">Healthcare</span><span class="badge">Governance</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm E5 feature entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-04">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-05">
+          <div class="card-top"><div><div class="id">SS-05</div><h3>PDF legal-contract classification in OneDrive</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-05">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - OneDrive</span><span class="badge">Trainable Classifier</span></div>
+          <p class="problem">Signed contracts are commonly retained as PDF and bypass Office-authoring label prompts.</p>
+          <div class="badge-row"><span class="badge">Data Protection</span><span class="badge">Governance</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm E5 feature entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-05">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-06">
+          <div class="card-top"><div><div class="id">SS-06</div><h3>OCR classification for scanned identity records</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-06">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - SharePoint/OneDrive</span><span class="badge">OCR + SIT</span></div>
+          <p class="problem">Scanned passports and identity documents are image-based and invisible to standard text-only inspection.</p>
+          <div class="badge-row"><span class="badge">Government</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-06">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-07">
+          <div class="card-top"><div><div class="id">SS-07</div><h3>Secure-by-default baseline for unlabeled repositories</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-07">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - SharePoint/OneDrive</span><span class="badge">Default / Label State</span></div>
+          <p class="problem">The organization cannot wait for perfect classifiers before reducing broad exposure across unlabeled content.</p>
+          <div class="badge-row"><span class="badge">Data Protection</span><span class="badge">Risk Reduction</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-07">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-08">
+          <div class="card-top"><div><div class="id">SS-08</div><h3>CAD and engineering-file contextual labeling</h3></div><span class="badge moderate">Moderate</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-08">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - SharePoint/OneDrive</span><span class="badge">Metadata</span></div>
+          <p class="problem">Critical engineering drawings use binary or specialized formats that content inspection cannot parse reliably.</p>
+          <div class="badge-row"><span class="badge">Intellectual Property</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-08">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-SS-09">
+          <div class="card-top"><div><div class="id">SS-09</div><h3>Large-estate policy partitioning and wave rollout</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-09">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 3: Protect and remediate</span><span class="badge">Service-Side AutoLabel</span><span class="badge">Service - Phased enterprise rollout</span><span class="badge">Policy Scope</span></div>
+          <p class="problem">A single policy across a very large SharePoint estate produces too many matches and too much operational risk for one activation.</p>
+          <div class="badge-row"><span class="badge">Data Protection</span><span class="badge">Governance</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div>
+          <button class="details" data-id="SS-09">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-01">
+          <div class="card-top"><div><div class="id">CL-01</div><h3>Real-time HR PII labeling in Word</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-01">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client - Word</span><span class="badge">SIT</span></div>
+          <p class="problem">HR staff create employee documents locally and may share them before a back-end policy processes the file.</p>
+          <div class="badge-row"><span class="badge">Privacy</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div>
+          <button class="details" data-id="CL-01">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-02">
+          <div class="card-top"><div><div class="id">CL-02</div><h3>Credit-card data labeling in Excel</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-02">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client - Excel</span><span class="badge">SIT</span></div>
+          <p class="problem">Spreadsheets containing card numbers are frequently created and emailed before compliance teams can discover them.</p>
+          <div class="badge-row"><span class="badge">Financial Regulations</span><span class="badge">Risk Reduction</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div>
+          <button class="details" data-id="CL-02">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-03">
+          <div class="card-top"><div><div class="id">CL-03</div><h3>MNPI email classification during compose</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-03">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client - Outlook</span><span class="badge">Trainable Classifier</span></div>
+          <p class="problem">Finance and investor-relations users may send material nonpublic information without selecting the restricted label.</p>
+          <div class="badge-row"><span class="badge">Financial Regulations</span><span class="badge">Risk Reduction</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm E5 feature entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div>
+          <button class="details" data-id="CL-03">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-04">
+          <div class="card-top"><div><div class="id">CL-04</div><h3>Financial-report protection in PowerPoint</h3></div><span class="badge moderate">Moderate</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-04">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client - PowerPoint</span><span class="badge">Trainable Classifier</span></div>
+          <p class="problem">Board and earnings presentations contain sensitive forecasts but often lack structured identifiers.</p>
+          <div class="badge-row"><span class="badge">Financial Regulations</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm E5 feature entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div>
+          <button class="details" data-id="CL-04">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-05">
+          <div class="card-top"><div><div class="id">CL-05</div><h3>Label-to-Endpoint-DLP protection chain</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-05">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client + Endpoint DLP</span><span class="badge">Label Signal</span></div>
+          <p class="problem">Sensitive files can be correctly identified in Office but copied to USB, print, clipboard, or unapproved applications.</p>
+          <div class="badge-row"><span class="badge">Healthcare</span><span class="badge">Data Protection</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm automatic-labeling entitlement</div>
+            <div><b>Roles</b><br>Information Protection + DLP Compliance Management</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/datalossprevention/policies" target="_blank" rel="noreferrer">DLP policies ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/datalossprevention/settings" target="_blank" rel="noreferrer">Endpoint DLP settings ↗</a></div>
+          <button class="details" data-id="CL-05">View implementation details</button>
+        </article>
+        <article class="card " id="scenario-CL-06">
+          <div class="card-top"><div><div class="id">CL-06</div><h3>Source-code classification during authoring</h3></div><span class="badge strong">Strong</span></div>
+          
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-06">
+        <span>Mark complete</span>
+      </label>
+          <div class="badge-row"><span class="status-badge not-started">Not started</span><span class="badge">Phase 2: Classify and label</span><span class="badge">Client-Side AutoLabel</span><span class="badge">Client - Office/Outlook</span><span class="badge">Trainable Classifier</span></div>
+          <p class="problem">Source code appears in documents, email, and collaboration content where simple keyword detection is unreliable.</p>
+          <div class="badge-row"><span class="badge">Intellectual Property</span><span class="badge">Risk Reduction</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>Confirm E5 feature entitlement</div>
+            <div><b>Roles</b><br>Information Protection administration</div>
+            <div><b>Owner</b><br>Not assigned</div>
+            <div><b>Evidence</b><br>Required</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div>
+          <button class="details" data-id="CL-06">View implementation details</button>
+        </article></div>
+      <div class="table-wrap" id="tableWrap" hidden="">
+        <table>
+          <thead><tr><th>Status</th><th>Scenario Name</th><th>Customer Problem Statement</th><th>Trigger / Condition</th><th>Business Impact</th><th>Solution Implemented</th><th>Remediation Outcome</th><th>Deployment Type</th><th>Configure in Purview</th></tr></thead>
+          <tbody id="tableBody">
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-01">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Historical SharePoint financial records remediation<br><span class="id">SS-01</span></td>
+          <td>Large volumes of unlabeled legacy financial files remain searchable and shareable without consistent protection.</td>
+          <td>High-confidence financial SITs in eligible Word, Excel, PowerPoint, or PDF files stored in scoped SharePoint sites.</td>
+          <td>Unclassified financial records create oversharing, audit, and incident-response gaps.</td>
+          <td>Run a SharePoint service-side policy in simulation, validate matches with finance owners, then apply a protected financial label in controlled site waves.</td>
+          <td>Historical content receives a persistent classification and can drive DLP, sharing, and audit controls.</td>
+          <td>Service - SharePoint</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-02">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>OneDrive customer PII remediation<br><span class="id">SS-02</span></td>
+          <td>Personal working files in OneDrive contain customer PII that users did not label during creation.</td>
+          <td>Customer identifiers, address data, or government IDs match high-confidence SIT conditions.</td>
+          <td>Sensitive customer records may be shared externally or synchronized to unmanaged locations without a durable classification.</td>
+          <td>Use a service-side OneDrive policy to label matching stored files and connect the label to DLP and sharing controls.</td>
+          <td>Customer PII is classified consistently across user-owned storage without waiting for files to be reopened.</td>
+          <td>Service - OneDrive</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-03">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Exchange outbound payment-card protection<br><span class="id">SS-03</span></td>
+          <td>Employees can send cardholder data in email bodies or supported attachments without selecting the correct label.</td>
+          <td>Credit Card Number SIT meets the configured confidence and instance threshold in outbound Exchange mail.</td>
+          <td>Cardholder data exposure creates PCI response, notification, and contractual risk.</td>
+          <td>Apply a PCI sensitivity label to matching email in transit and use encryption or DLP according to the approved handling model.</td>
+          <td>Payment-card email is consistently classified at the service boundary; policy events are available for review.</td>
+          <td>Service - Exchange in transit</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-04">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Inbound healthcare email classification<br><span class="id">SS-04</span></td>
+          <td>External laboratories and partners send PHI that arrives without the organization's sensitivity labels.</td>
+          <td>Named-entity or health-data SIT conditions match incoming Exchange Online email.</td>
+          <td>Unlabeled inbound PHI weakens downstream DLP, investigation, and handling consistency.</td>
+          <td>Include all Exchange locations as required for external senders, label matched inbound email, and configure encryption ownership only when the design requires it.</td>
+          <td>Inbound PHI becomes visible to label-based controls immediately after Exchange processing.</td>
+          <td>Service - Exchange in transit</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-05">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>PDF legal-contract classification in OneDrive<br><span class="id">SS-05</span></td>
+          <td>Signed contracts are commonly retained as PDF and bypass Office-authoring label prompts.</td>
+          <td>Contract trainable classifier or corroborated legal keywords match supported PDF files stored in OneDrive.</td>
+          <td>Executed agreements may remain unclassified, increasing discovery and sharing risk.</td>
+          <td>Use service-side PDF inspection with a legal-contract policy and apply an approved legal confidentiality label.</td>
+          <td>Stored PDF contracts gain consistent classification without conversion to Office formats.</td>
+          <td>Service - OneDrive</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-06">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>OCR classification for scanned identity records<br><span class="id">SS-06</span></td>
+          <td>Scanned passports and identity documents are image-based and invisible to standard text-only inspection.</td>
+          <td>OCR extracts supported text from eligible stored images or image-based documents and an identity SIT matches.</td>
+          <td>Identity records can remain undiscovered and outside labeling or DLP controls.</td>
+          <td>Enable the required OCR capability and billing model, test representative scans, then apply an identity-data label through service-side policy.</td>
+          <td>Previously opaque scanned records become classifiable and governable.</td>
+          <td>Service - SharePoint/OneDrive</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-07">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Secure-by-default baseline for unlabeled repositories<br><span class="id">SS-07</span></td>
+          <td>The organization cannot wait for perfect classifiers before reducing broad exposure across unlabeled content.</td>
+          <td>Eligible content is unlabeled or resides in a designated high-risk repository.</td>
+          <td>A large unclassified estate remains available for oversharing and inconsistent downstream control.</td>
+          <td>Apply an intuitive baseline label by default, then use higher-priority content conditions for stronger labels.</td>
+          <td>The estate gains a minimum protection baseline while classification maturity continues.</td>
+          <td>Service - SharePoint/OneDrive</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-08">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>CAD and engineering-file contextual labeling<br><span class="id">SS-08</span></td>
+          <td>Critical engineering drawings use binary or specialized formats that content inspection cannot parse reliably.</td>
+          <td>Contextual conditions such as file extension, document name, location, or creator match the engineering pattern.</td>
+          <td>High-value design IP can remain unclassified solely because its file type is not text-readable.</td>
+          <td>Use service-side contextual conditions to label designated engineering file types or repositories, with exclusions for known benign content.</td>
+          <td>Non-text engineering assets receive consistent classification based on defensible context.</td>
+          <td>Service - SharePoint/OneDrive</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="SS-09">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Large-estate policy partitioning and wave rollout<br><span class="id">SS-09</span></td>
+          <td>A single policy across a very large SharePoint estate produces too many matches and too much operational risk for one activation.</td>
+          <td>Simulation or location volume exceeds a manageable review and rollout boundary.</td>
+          <td>Broad activation can cause avoidable labeling failures, access disruption, and slow remediation.</td>
+          <td>Partition locations into non-overlapping policy groups, standardize rule names, require wave-level sign-off, and compare failures before expansion.</td>
+          <td>Scale-out becomes supportable and each rollout wave has accountable owners and rollback criteria.</td>
+          <td>Service - Phased enterprise rollout</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/autolabeling" target="_blank" rel="noreferrer">Auto-labeling policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-01">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Real-time HR PII labeling in Word<br><span class="id">CL-01</span></td>
+          <td>HR staff create employee documents locally and may share them before a back-end policy processes the file.</td>
+          <td>High-confidence employee identity or government-ID SIT matches while a Word document is edited.</td>
+          <td>New HR documents can leave the authoring session without the intended classification.</td>
+          <td>Configure client-side auto-labeling to apply the HR label during authoring and display a policy tip.</td>
+          <td>Classification is present before the document is saved or shared.</td>
+          <td>Client - Word</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-02">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Credit-card data labeling in Excel<br><span class="id">CL-02</span></td>
+          <td>Spreadsheets containing card numbers are frequently created and emailed before compliance teams can discover them.</td>
+          <td>Credit Card Number SIT reaches the configured confidence and count in Excel.</td>
+          <td>Unlabeled cardholder spreadsheets increase PCI and exfiltration risk.</td>
+          <td>Apply or recommend a PCI label in Excel and use the label as an Endpoint DLP and Microsoft 365 DLP condition.</td>
+          <td>The spreadsheet carries a durable classification from the point of creation.</td>
+          <td>Client - Excel</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-03">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>MNPI email classification during compose<br><span class="id">CL-03</span></td>
+          <td>Finance and investor-relations users may send material nonpublic information without selecting the restricted label.</td>
+          <td>A trainable classifier plus approved financial-report or transaction keywords matches while Outlook composes, replies, or forwards.</td>
+          <td>Premature disclosure can create market, legal, and reputational consequences.</td>
+          <td>Use client-side conditions to recommend or apply an MNPI label before send, with clear user guidance and downgrade justification.</td>
+          <td>Users receive a decision point while they can still correct recipients or content.</td>
+          <td>Client - Outlook</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-04">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Financial-report protection in PowerPoint<br><span class="id">CL-04</span></td>
+          <td>Board and earnings presentations contain sensitive forecasts but often lack structured identifiers.</td>
+          <td>Financial-report classifier, terms, and supporting evidence match during PowerPoint editing.</td>
+          <td>Draft results and forecasts can be overshared before publication.</td>
+          <td>Use client-side labeling with a high-sensitivity finance label, visual markings, and appropriate access control.</td>
+          <td>Draft presentations are classified before circulation and remain protected when copied.</td>
+          <td>Client - PowerPoint</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-05">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Label-to-Endpoint-DLP protection chain<br><span class="id">CL-05</span></td>
+          <td>Sensitive files can be correctly identified in Office but copied to USB, print, clipboard, or unapproved applications.</td>
+          <td>A health, financial, or PII condition applies a persistent sensitivity label during authoring.</td>
+          <td>Labeled information can still leave managed channels without downstream enforcement.</td>
+          <td>Use the label as an Endpoint DLP condition and configure audited, warned, or blocked device actions according to risk.</td>
+          <td>One classification decision drives consistent endpoint controls without recreating content logic.</td>
+          <td>Client + Endpoint DLP</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/datalossprevention/policies" target="_blank" rel="noreferrer">DLP policies ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/datalossprevention/settings" target="_blank" rel="noreferrer">Endpoint DLP settings ↗</a></div></td>
+        </tr>
+        <tr>
+          <td>
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="CL-06">
+        <span>Mark complete</span>
+      </label><br><span class="status-badge not-started">Not started</span></td>
+          <td>Source-code classification during authoring<br><span class="id">CL-06</span></td>
+          <td>Source code appears in documents, email, and collaboration content where simple keyword detection is unreliable.</td>
+          <td>A source-code trainable classifier detects code-like content in a supported authoring experience.</td>
+          <td>Software intellectual property can be shared through ordinary productivity channels without a durable signal.</td>
+          <td>Apply or recommend an IP label, validate across representative languages, and enforce the label through DLP.</td>
+          <td>Contextual source-code detection becomes reusable protection and investigation metadata.</td>
+          <td>Client - Office/Outlook</td>
+          <td><div class="portal-links"><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" target="_blank" rel="noreferrer">Sensitivity labels ↗</a><a class="portal-link" href="https://purview.microsoft.com/solutions/informationprotection/labelpolicies" target="_blank" rel="noreferrer">Label publishing policies ↗</a></div></td>
+        </tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="footer">Prepared as an anonymized implementation-pattern catalog. Product capabilities and prerequisites should be confirmed against current Microsoft documentation before deployment.</p>
+  </main>
+
+  <dialog id="detailDialog">
+    <div class="dialog-head"><div><div class="id" id="dialogId"></div><h2 id="dialogTitle"></h2></div><button class="close" id="closeDialog" aria-label="Close">X</button></div>
+    <div class="dialog-body" id="dialogBody"></div>
+  </dialog>
+
+  <script>
+
+    const scenarios = [
+      {id:"SS-01",feature:"Service-Side AutoLabel",name:"Historical SharePoint financial records remediation",problem:"Large volumes of unlabeled legacy financial files remain searchable and shareable without consistent protection.",root:"Manual labeling does not scale across historical repositories and users rarely revisit dormant content.",trigger:"High-confidence financial SITs in eligible Word, Excel, PowerPoint, or PDF files stored in scoped SharePoint sites.",impact:"Unclassified financial records create oversharing, audit, and incident-response gaps.",solution:"Run a SharePoint service-side policy in simulation, validate matches with finance owners, then apply a protected financial label in controlled site waves.",outcome:"Historical content receives a persistent classification and can drive DLP, sharing, and audit controls.",deployment:"Service - SharePoint",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Compliance Improvement",ux:"No authoring interruption; users see the label when content is next opened.",scale:"Use grouped locations, policy ownership, eligible-file counts, and failure review.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-02",feature:"Service-Side AutoLabel",name:"OneDrive customer PII remediation",problem:"Personal working files in OneDrive contain customer PII that users did not label during creation.",root:"Reliance on manual behavior leaves individually stored content inconsistently classified.",trigger:"Customer identifiers, address data, or government IDs match high-confidence SIT conditions.",impact:"Sensitive customer records may be shared externally or synchronized to unmanaged locations without a durable classification.",solution:"Use a service-side OneDrive policy to label matching stored files and connect the label to DLP and sharing controls.",outcome:"Customer PII is classified consistently across user-owned storage without waiting for files to be reopened.",deployment:"Service - OneDrive",compliance:"Privacy",detection:"SIT",businessOutcome:"Risk Reduction",ux:"Transparent at application time; encrypted labels require access-impact testing.",scale:"Prioritize high-risk populations and monitor locked, open, or unsupported files.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-03",feature:"Service-Side AutoLabel",name:"Exchange outbound payment-card protection",problem:"Employees can send cardholder data in email bodies or supported attachments without selecting the correct label.",root:"Manual classification happens too late or is skipped during fast email workflows.",trigger:"Credit Card Number SIT meets the configured confidence and instance threshold in outbound Exchange mail.",impact:"Cardholder data exposure creates PCI response, notification, and contractual risk.",solution:"Apply a PCI sensitivity label to matching email in transit and use encryption or DLP according to the approved handling model.",outcome:"Payment-card email is consistently classified at the service boundary; policy events are available for review.",deployment:"Service - Exchange in transit",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Data Protection",ux:"The service labels the message after send; the attachment itself is not independently labeled by the Exchange policy.",scale:"Tune thresholds and exceptions to exclude approved payment workflows.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-04",feature:"Service-Side AutoLabel",name:"Inbound healthcare email classification",problem:"External laboratories and partners send PHI that arrives without the organization's sensitivity labels.",root:"External senders cannot be expected to use the recipient organization's taxonomy.",trigger:"Named-entity or health-data SIT conditions match incoming Exchange Online email.",impact:"Unlabeled inbound PHI weakens downstream DLP, investigation, and handling consistency.",solution:"Include all Exchange locations as required for external senders, label matched inbound email, and configure encryption ownership only when the design requires it.",outcome:"Inbound PHI becomes visible to label-based controls immediately after Exchange processing.",deployment:"Service - Exchange in transit",compliance:"Healthcare",detection:"Named Entity",businessOutcome:"Governance",ux:"Recipients see the organization-applied label; validate markings that might expose external sender names.",scale:"Test trusted partner traffic, attachments, and false positives before broad activation.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-05",feature:"Service-Side AutoLabel",name:"PDF legal-contract classification in OneDrive",problem:"Signed contracts are commonly retained as PDF and bypass Office-authoring label prompts.",root:"Client-side document auto-labeling does not provide equivalent PDF content inspection.",trigger:"Contract trainable classifier or corroborated legal keywords match supported PDF files stored in OneDrive.",impact:"Executed agreements may remain unclassified, increasing discovery and sharing risk.",solution:"Use service-side PDF inspection with a legal-contract policy and apply an approved legal confidentiality label.",outcome:"Stored PDF contracts gain consistent classification without conversion to Office formats.",deployment:"Service - OneDrive",compliance:"Data Protection",detection:"Trainable Classifier",businessOutcome:"Governance",ux:"No user prompt; users should understand why an existing PDF acquires a label.",scale:"Validate classifier precision on executed agreements, amendments, and unrelated legal text.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-06",feature:"Service-Side AutoLabel",name:"OCR classification for scanned identity records",problem:"Scanned passports and identity documents are image-based and invisible to standard text-only inspection.",root:"The sensitive values are embedded in images rather than extractable document text.",trigger:"OCR extracts supported text from eligible stored images or image-based documents and an identity SIT matches.",impact:"Identity records can remain undiscovered and outside labeling or DLP controls.",solution:"Enable the required OCR capability and billing model, test representative scans, then apply an identity-data label through service-side policy.",outcome:"Previously opaque scanned records become classifiable and governable.",deployment:"Service - SharePoint/OneDrive",compliance:"Government",detection:"OCR + SIT",businessOutcome:"Data Protection",ux:"No direct user interruption; administrators must communicate any new processing and cost implications.",scale:"Measure image quality, language coverage, supported formats, latency, and cost before expansion.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-07",feature:"Service-Side AutoLabel",name:"Secure-by-default baseline for unlabeled repositories",problem:"The organization cannot wait for perfect classifiers before reducing broad exposure across unlabeled content.",root:"Manual-only labeling gives incomplete coverage while classifier design can take months.",trigger:"Eligible content is unlabeled or resides in a designated high-risk repository.",impact:"A large unclassified estate remains available for oversharing and inconsistent downstream control.",solution:"Apply an intuitive baseline label by default, then use higher-priority content conditions for stronger labels.",outcome:"The estate gains a minimum protection baseline while classification maturity continues.",deployment:"Service - SharePoint/OneDrive",compliance:"Data Protection",detection:"Default / Label State",businessOutcome:"Risk Reduction",ux:"Users may change the label when business context justifies it; downgrade justification should be considered.",scale:"Pilot encryption impact and define exception handling for line-of-business workflows.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SS-08",feature:"Service-Side AutoLabel",name:"CAD and engineering-file contextual labeling",problem:"Critical engineering drawings use binary or specialized formats that content inspection cannot parse reliably.",root:"Text-based SITs and classifiers cannot interpret every proprietary engineering format.",trigger:"Contextual conditions such as file extension, document name, location, or creator match the engineering pattern.",impact:"High-value design IP can remain unclassified solely because its file type is not text-readable.",solution:"Use service-side contextual conditions to label designated engineering file types or repositories, with exclusions for known benign content.",outcome:"Non-text engineering assets receive consistent classification based on defensible context.",deployment:"Service - SharePoint/OneDrive",compliance:"Intellectual Property",detection:"Metadata",businessOutcome:"Data Protection",ux:"Explain that classification is based on file context rather than content inspection.",scale:"Inventory business-critical extensions and test archives, generated files, and naming exceptions.",evidence:"Moderate",evidenceType:"Published Microsoft guidance"},
+      {id:"SS-09",feature:"Service-Side AutoLabel",name:"Large-estate policy partitioning and wave rollout",problem:"A single policy across a very large SharePoint estate produces too many matches and too much operational risk for one activation.",root:"Monolithic scope hides ownership, complicates simulation review, and increases blast radius.",trigger:"Simulation or location volume exceeds a manageable review and rollout boundary.",impact:"Broad activation can cause avoidable labeling failures, access disruption, and slow remediation.",solution:"Partition locations into non-overlapping policy groups, standardize rule names, require wave-level sign-off, and compare failures before expansion.",outcome:"Scale-out becomes supportable and each rollout wave has accountable owners and rollback criteria.",deployment:"Service - Phased enterprise rollout",compliance:"Data Protection",detection:"Policy Scope",businessOutcome:"Governance",ux:"Users experience localized, planned changes rather than tenant-wide surprise.",scale:"Respect current policy, location, simulation, and daily processing limits documented by Microsoft.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+
+      {id:"CL-01",feature:"Client-Side AutoLabel",name:"Real-time HR PII labeling in Word",problem:"HR staff create employee documents locally and may share them before a back-end policy processes the file.",root:"Service-side controls act only after supported content is saved in Microsoft 365.",trigger:"High-confidence employee identity or government-ID SIT matches while a Word document is edited.",impact:"New HR documents can leave the authoring session without the intended classification.",solution:"Configure client-side auto-labeling to apply the HR label during authoring and display a policy tip.",outcome:"Classification is present before the document is saved or shared.",deployment:"Client - Word",compliance:"Privacy",detection:"SIT",businessOutcome:"Data Protection",ux:"Immediate policy tip; users can correct content or label decisions according to policy settings.",scale:"Confirm Office version support and test performance on long documents.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CL-02",feature:"Client-Side AutoLabel",name:"Credit-card data labeling in Excel",problem:"Spreadsheets containing card numbers are frequently created and emailed before compliance teams can discover them.",root:"Spreadsheet workflows are fast and manual label selection is inconsistent.",trigger:"Credit Card Number SIT reaches the configured confidence and count in Excel.",impact:"Unlabeled cardholder spreadsheets increase PCI and exfiltration risk.",solution:"Apply or recommend a PCI label in Excel and use the label as an Endpoint DLP and Microsoft 365 DLP condition.",outcome:"The spreadsheet carries a durable classification from the point of creation.",deployment:"Client - Excel",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Risk Reduction",ux:"Policy tips can highlight sensitive content so the author can remove test data or accept the label.",scale:"Tune for test card numbers and approved finance templates.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CL-03",feature:"Client-Side AutoLabel",name:"MNPI email classification during compose",problem:"Finance and investor-relations users may send material nonpublic information without selecting the restricted label.",root:"The sensitivity depends on context and timing, not only a fixed identifier.",trigger:"A trainable classifier plus approved financial-report or transaction keywords matches while Outlook composes, replies, or forwards.",impact:"Premature disclosure can create market, legal, and reputational consequences.",solution:"Use client-side conditions to recommend or apply an MNPI label before send, with clear user guidance and downgrade justification.",outcome:"Users receive a decision point while they can still correct recipients or content.",deployment:"Client - Outlook",compliance:"Financial Regulations",detection:"Trainable Classifier",businessOutcome:"Risk Reduction",ux:"Keep policy text concise and avoid unnecessary prompts for routine public filings.",scale:"Pilot with finance groups and maintain a false-positive feedback channel.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CL-04",feature:"Client-Side AutoLabel",name:"Financial-report protection in PowerPoint",problem:"Board and earnings presentations contain sensitive forecasts but often lack structured identifiers.",root:"Charts, narrative, and business context are more important than fixed number patterns.",trigger:"Financial-report classifier, terms, and supporting evidence match during PowerPoint editing.",impact:"Draft results and forecasts can be overshared before publication.",solution:"Use client-side labeling with a high-sensitivity finance label, visual markings, and appropriate access control.",outcome:"Draft presentations are classified before circulation and remain protected when copied.",deployment:"Client - PowerPoint",compliance:"Financial Regulations",detection:"Trainable Classifier",businessOutcome:"Data Protection",ux:"Validate markings and encryption so executive review workflows remain usable.",scale:"Test decks with embedded objects, charts, and approved public templates.",evidence:"Moderate",evidenceType:"Documented deployment pattern"},
+      {id:"CL-05",feature:"Client-Side AutoLabel",name:"Label-to-Endpoint-DLP protection chain",problem:"Sensitive files can be correctly identified in Office but copied to USB, print, clipboard, or unapproved applications.",root:"Classification by itself does not enforce device-level handling.",trigger:"A health, financial, or PII condition applies a persistent sensitivity label during authoring.",impact:"Labeled information can still leave managed channels without downstream enforcement.",solution:"Use the label as an Endpoint DLP condition and configure audited, warned, or blocked device actions according to risk.",outcome:"One classification decision drives consistent endpoint controls without recreating content logic.",deployment:"Client + Endpoint DLP",compliance:"Healthcare",detection:"Label Signal",businessOutcome:"Data Protection",ux:"Use user notifications and justified overrides for legitimate workflows.",scale:"Roll out audit-first and validate printer, browser, USB, and application groups.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CL-06",feature:"Client-Side AutoLabel",name:"Source-code classification during authoring",problem:"Source code appears in documents, email, and collaboration content where simple keyword detection is unreliable.",root:"Programming languages and snippets are structurally varied and can resemble normal text.",trigger:"A source-code trainable classifier detects code-like content in a supported authoring experience.",impact:"Software intellectual property can be shared through ordinary productivity channels without a durable signal.",solution:"Apply or recommend an IP label, validate across representative languages, and enforce the label through DLP.",outcome:"Contextual source-code detection becomes reusable protection and investigation metadata.",deployment:"Client - Office/Outlook",compliance:"Intellectual Property",detection:"Trainable Classifier",businessOutcome:"Risk Reduction",ux:"Allow feedback for documentation, configuration samples, and public open-source snippets.",scale:"Test language coverage, file types, latency, and false positives before mandatory enforcement.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+
+      {id:"SIT-01",feature:"SIT-Based Use Case",name:"Credit card number protection",problem:"Card numbers appear in documents and email outside approved payment systems.",root:"Users copy transactional data into general productivity tools.",trigger:"Credit Card Number SIT with high confidence and an approved instance threshold.",impact:"Creates PCI-DSS exposure and increases breach-response scope.",solution:"Use high-confidence SIT rules, exclude approved payment locations, and apply a PCI label with downstream DLP.",outcome:"Cardholder data is easier to discover, govern, and prevent from unauthorized sharing.",deployment:"Service or Client",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Risk Reduction",ux:"Recommendations can let users remove test data instead of accepting the label.",scale:"Maintain test-number exclusions and monitor dominant trigger locations.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-02",feature:"SIT-Based Use Case",name:"Passport number and identity-document protection",problem:"Travel, onboarding, and immigration teams retain passport details in general collaboration repositories.",root:"Identity documents are collected through ordinary business processes without consistent classification.",trigger:"Passport Number SIT or OCR-extracted passport data meets confidence requirements.",impact:"Loss or oversharing can enable identity theft and trigger privacy obligations.",solution:"Label matching content as highly confidential and restrict external sharing or endpoint transfer.",outcome:"Passport data becomes consistently classified across supported documents and scanned records.",deployment:"Service or Client",compliance:"Government",detection:"SIT",businessOutcome:"Data Protection",ux:"Provide an exception process for approved travel agencies or immigration counsel.",scale:"Test country-specific formats, images, and multilingual surrounding evidence.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-03",feature:"SIT-Based Use Case",name:"US Social Security number protection",problem:"SSNs appear in HR, payroll, tax, and benefits documents beyond controlled systems.",root:"Common operational processes export identity data into Office files.",trigger:"US Social Security Number SIT at high confidence, optionally corroborated by names or employee terms.",impact:"Exposure creates identity-theft, notification, and regulatory risk.",solution:"Apply a restricted PII label and use label-based DLP to prevent external sharing or unmanaged-device transfer.",outcome:"High-risk identity records receive uniform classification and handling.",deployment:"Service or Client",compliance:"Privacy",detection:"SIT",businessOutcome:"Risk Reduction",ux:"Tune for masked SSNs and approved tax workflows.",scale:"Use high confidence first; expand only after sample review.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-04",feature:"SIT-Based Use Case",name:"Aadhaar identity-data protection",problem:"India-based HR and customer operations process Aadhaar identifiers in documents and communications.",root:"Regional identity data is handled in globally shared collaboration systems.",trigger:"India Aadhaar Number SIT with configured confidence and supporting evidence.",impact:"Unauthorized disclosure creates privacy, identity, and customer-trust risk.",solution:"Scope an India identity policy, apply a restricted label, and configure region-appropriate sharing and DLP actions.",outcome:"Aadhaar-bearing content is classified consistently within the relevant business process.",deployment:"Service or Client",compliance:"Government",detection:"SIT",businessOutcome:"Compliance Improvement",ux:"Use localized guidance and validate false positives with regional data owners.",scale:"Separate regional rules to improve ownership and reporting clarity.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-05",feature:"SIT-Based Use Case",name:"Tax identifier protection across jurisdictions",problem:"Tax IDs are stored in supplier, payroll, and customer records across multiple countries.",root:"One global pattern cannot reliably represent every jurisdiction's identifier format.",trigger:"Country-specific tax identifier SITs grouped by region and business process.",impact:"Tax identity exposure can create privacy, fraud, and regulatory reporting obligations.",solution:"Build regional policy rules, select high-confidence variants, and map each rule to the approved PII label.",outcome:"Tax records receive consistent classification without treating all numeric strings as sensitive.",deployment:"Service or Client",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Compliance Improvement",ux:"Regional policy messages clarify why a label was suggested or applied.",scale:"Assign regional SIT owners and periodically review top triggers.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+      {id:"SIT-06",feature:"SIT-Based Use Case",name:"Banking and account-information protection",problem:"Account numbers, routing details, and banking instructions appear in invoices and payment communications.",root:"Legitimate finance workflows use the same collaboration channels as ordinary business content.",trigger:"Bank account or routing SITs, optionally combined with finance terms and minimum counts.",impact:"Exposure can enable payment fraud and unauthorized transactions.",solution:"Apply a finance-restricted label and use DLP to warn or block external recipients outside approved partner domains.",outcome:"Payment instructions are classified and governed while approved finance workflows remain possible.",deployment:"Service or Client",compliance:"Financial Regulations",detection:"SIT",businessOutcome:"Risk Reduction",ux:"Provide override justification for verified banks, auditors, and payment processors.",scale:"Maintain partner allowlists carefully and monitor business-email-compromise patterns separately.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-07",feature:"SIT-Based Use Case",name:"Healthcare record and PHI protection",problem:"Clinical and administrative documents contain diagnoses, patient identifiers, and treatment details.",root:"Single medical keywords can be ambiguous, while patient data spans structured and narrative content.",trigger:"Healthcare named entities or PHI SITs combined with patient identifiers or corroborative context.",impact:"Unprotected PHI creates privacy, care-partner, and regulatory risk.",solution:"Use multi-condition healthcare rules and apply a PHI label with approved encryption and DLP handling.",outcome:"Clinical content receives higher-confidence classification than broad keyword-only rules.",deployment:"Service or Client",compliance:"Healthcare",detection:"Named Entity",businessOutcome:"Compliance Improvement",ux:"Keep recommendations non-disruptive for time-critical clinical roles.",scale:"Validate specialties, abbreviations, languages, and legitimate public-health material.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-08",feature:"SIT-Based Use Case",name:"Customer PII bundle detection",problem:"Customer records contain varied names, addresses, contact details, and identifiers that are weak signals individually.",root:"A single low-specificity element produces excessive false positives.",trigger:"Named-entity bundles or multiple PII elements occur within proximity and count thresholds.",impact:"Inconsistent discovery makes privacy response and data-minimization efforts unreliable.",solution:"Use bundled PII detection with AND logic and apply a customer-data label when the evidence threshold is met.",outcome:"Customer-record classification is more precise than isolated name or address matches.",deployment:"Service",compliance:"Privacy",detection:"Named Entity",businessOutcome:"Governance",ux:"No prompt for historical content; sample review remains essential.",scale:"Tune thresholds for forms, directories, and public contact lists.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"SIT-09",feature:"SIT-Based Use Case",name:"Proprietary part-number custom SIT",problem:"Engineering part numbers and internal product codes are not recognized by Microsoft's built-in regulated-data SITs.",root:"The sensitive signal is organization-specific.",trigger:"Custom regex or function matches the internal code and required supporting terms within proximity.",impact:"Design and supply-chain IP can be shared without recognition by generic controls.",solution:"Create a custom SIT with confidence levels, positive and negative samples, and a dedicated IP label.",outcome:"Organization-specific technical identifiers become usable by labeling and DLP policies.",deployment:"Service or Client",compliance:"Intellectual Property",detection:"Custom SIT",businessOutcome:"Data Protection",ux:"Explain that not every product reference is confidential; tune supporting evidence.",scale:"Version patterns and regression-test changes against representative content.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+      {id:"SIT-10",feature:"SIT-Based Use Case",name:"R&D keyword-dictionary protection",problem:"Project codenames and compound names are sensitive but have no stable numeric pattern.",root:"Built-in SITs do not know proprietary terminology and semantic classifiers may be unnecessary for exact terms.",trigger:"A custom keyword dictionary matches approved project, formula, or compound terminology.",impact:"Trade-secret references can move through email and documents without detection.",solution:"Maintain a governed keyword dictionary, apply an R&D label, and connect it to external-sharing and endpoint controls.",outcome:"Known proprietary terms become immediately classifiable and auditable.",deployment:"Service or Client",compliance:"Intellectual Property",detection:"Keyword",businessOutcome:"Risk Reduction",ux:"Address common-word collisions and explain literal matching limitations.",scale:"Integrate term updates with project initiation and closure processes.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+
+      {id:"CC-01",feature:"Conditions & Classifiers",name:"EDM customer account-number matching",problem:"Pattern-based account-number detection matches values that resemble accounts but do not belong to the organization.",root:"Formatting alone cannot prove that a value is an actual customer record.",trigger:"A strongly patterned primary element and corroborative fields match the hashed EDM dataset.",impact:"False positives weaken trust and consume investigation capacity.",solution:"Create an EDM schema from authoritative customer data, hash and upload it, test the EDM SIT, and use it in service-side labeling.",outcome:"Policies identify records that correspond to organization-owned data with higher contextual confidence.",deployment:"Service",compliance:"Financial Regulations",detection:"EDM",businessOutcome:"Risk Reduction",ux:"No authoring prompt; document data-processing ownership and purpose.",scale:"Assign refresh ownership, least-privilege uploader roles, and dataset-quality monitoring.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+      {id:"CC-02",feature:"Conditions & Classifiers",name:"EDM employee and patient-record matching",problem:"Employee IDs and medical record numbers overlap with ordinary numeric strings.",root:"Pattern-only rules cannot verify that the values belong to the enterprise.",trigger:"Primary identifiers and corroborative attributes match a hashed HR or patient reference table.",impact:"Low precision makes automated PHI or HR labeling too risky.",solution:"Use EDM in service-side policies, maintain approved source extracts, and validate both primary and secondary elements.",outcome:"Known structured records can be labeled with greater precision than generic pattern matching.",deployment:"Service",compliance:"Healthcare",detection:"EDM",businessOutcome:"Compliance Improvement",ux:"Users are not exposed to reference data; raw source values are not uploaded as plaintext.",scale:"Plan refresh cadence, schema changes, source ownership, and stale-record handling.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CC-03",feature:"Conditions & Classifiers",name:"Legal-contract trainable classifier",problem:"Contracts are defined by structure and meaning, not one universal keyword or identifier.",root:"Keyword lists either miss diverse agreements or match unrelated legal discussion.",trigger:"A prebuilt or validated custom trainable classifier identifies contract-like content.",impact:"Unclassified agreements create discovery, sharing, and obligation-management gaps.",solution:"Use a classifier to apply a legal label, then connect that label to DLP, retention, or restricted sharing as required.",outcome:"Semantically similar contracts receive a durable control signal across supported locations.",deployment:"Service or Client",compliance:"Data Protection",detection:"Trainable Classifier",businessOutcome:"Governance",ux:"Allow legal owners to review borderline categories such as proposals and statements of work.",scale:"Use versioned validation samples and progressive rollout.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CC-04",feature:"Conditions & Classifiers",name:"Research-report custom classifier",problem:"Confidential research reports vary widely and cannot be captured by exact terms alone.",root:"The sensitivity is semantic and organization-specific.",trigger:"A custom trainable classifier trained on representative positive and negative research documents reaches the approved confidence.",impact:"Research IP can remain unclassified or broad keyword controls can over-label ordinary material.",solution:"Train, test, publish, and initially deploy the classifier to a bounded site population in recommendation or simulation-oriented workflows.",outcome:"Contextual research content becomes classifiable after evidence-based validation.",deployment:"Service or Client",compliance:"Intellectual Property",detection:"Custom Classifier",businessOutcome:"Data Protection",ux:"Provide a feedback route when authors disagree with classifier results.",scale:"Retain training and validation sets and reassess drift as document styles change.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+      {id:"CC-05",feature:"Conditions & Classifiers",name:"Document fingerprint for standard consent forms",problem:"Completed consent forms contain variable patient data but retain a standard structure.",root:"Individual fields may be missing, handwritten, or insufficient to identify the document class.",trigger:"A fingerprint-based SIT recognizes the stable structure of the approved form.",impact:"Consent forms can be missed by simple identifier rules and stored without the required protection.",solution:"Create a document fingerprint from a representative template and validate modified and partially completed examples.",outcome:"Recurring regulated forms become identifiable even when entered data changes.",deployment:"Service or Client",compliance:"Healthcare",detection:"Document Fingerprint",businessOutcome:"Compliance Improvement",ux:"No special action for users; form owners must govern template changes.",scale:"Use stable text-based templates and retest when forms are redesigned.",evidence:"Moderate",evidenceType:"Published Microsoft guidance"},
+      {id:"CC-06",feature:"Conditions & Classifiers",name:"Multi-condition national-ID precision rule",problem:"A national-ID pattern alone matches unrelated account or reference numbers.",root:"The primary pattern lacks enough context.",trigger:"National-ID SIT AND person-name or government-term evidence, with NOT exclusions for known false-positive templates.",impact:"Excessive false positives delay enforcement and reduce user confidence.",solution:"Use nested service-side AND/OR/NOT logic, confidence tiers, proximity, and exceptions validated in simulation.",outcome:"Only content with corroborative identity context receives the restricted label.",deployment:"Service",compliance:"Government",detection:"Multi-condition",businessOutcome:"Risk Reduction",ux:"Historical labeling remains transparent; document policy logic for support teams.",scale:"Track precision and recall separately and revisit exclusions regularly.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CC-07",feature:"Conditions & Classifiers",name:"Confidence-tiered PCI policy",problem:"One threshold cannot balance rare high-confidence card matches and larger volumes of medium-confidence evidence.",root:"Confidence and instance count represent different levels of risk.",trigger:"High-confidence card match OR a larger number of medium-confidence matches with supporting payment terms.",impact:"Overly sensitive rules create noise; overly strict rules miss real cardholder documents.",solution:"Create tiered conditions and compare simulation results before selecting the enforcement threshold.",outcome:"Policy sensitivity aligns more closely with the organization's risk tolerance.",deployment:"Service",compliance:"Financial Regulations",detection:"Confidence Level",businessOutcome:"Risk Reduction",ux:"Policy explanations help users understand why bulk card data receives stronger handling.",scale:"Monitor threshold drift and approved test-data repositories.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"CC-08",feature:"Conditions & Classifiers",name:"Library context plus content escalation",problem:"A repository is sensitive by business purpose, but only some files require the strongest protection.",root:"Location alone overprotects ordinary content while content-only rules miss the repository context.",trigger:"A default library label establishes the baseline; SIT or classifier matches escalate higher-risk files.",impact:"Using one label for every file either creates friction or leaves critical items underprotected.",solution:"Combine a SharePoint library default label with higher-priority content-based service-side policies.",outcome:"Every file receives baseline classification and genuinely sensitive items receive stronger protection.",deployment:"Service - SharePoint",compliance:"Data Protection",detection:"Metadata + Classifier",businessOutcome:"Governance",ux:"Users see predictable baseline behavior with limited high-sensitivity escalation.",scale:"Document label priority and test moved/copied files and legitimate exceptions.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+
+      {id:"RL-01",feature:"Recommended Label",name:"Outlook PII recommendation as an adoption nudge",problem:"Users need guidance when an email contains PII, but immediate mandatory encryption would disrupt legitimate external collaboration.",root:"The organization is still validating handling patterns and building labeling habits.",trigger:"A PII SIT matches while the user composes or replies in Outlook.",impact:"Manual-only labeling misses sensitive messages; aggressive automation can create resistance.",solution:"Recommend the appropriate label with a concise policy tip and let the user accept or dismiss while collecting audit evidence.",outcome:"Users learn the desired behavior at the decision point without a hard rollout on day one.",deployment:"Client - Outlook recommendation",compliance:"Privacy",detection:"SIT",businessOutcome:"User Productivity",ux:"Track acceptance, dismissal, and override patterns; pair with service-side policy as a safety net.",scale:"Phase by user group and move mature, low-friction populations toward stronger enforcement.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"RL-02",feature:"Recommended Label",name:"Legal-document recommendation in Word",problem:"Authors recognize legal context better than a classifier in borderline documents.",root:"Contract-like language appears in drafts, guidance, training, and actual agreements.",trigger:"A legal classifier matches while a Word document is edited.",impact:"Silent automation can over-label ordinary legal content, while no prompt leaves agreements unprotected.",solution:"Recommend a legal label, let the author accept or remove the triggering content, and use feedback to tune the classifier.",outcome:"The final classification combines machine detection with author context.",deployment:"Client - Word recommendation",compliance:"Data Protection",detection:"Trainable Classifier",businessOutcome:"User Productivity",ux:"Make acceptance simple and provide clear label descriptions.",scale:"Review acceptance by document type before moving any population to automatic application.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"RL-03",feature:"Recommended Label",name:"Phased healthcare recommendation rollout",problem:"A mandatory label prompt can interrupt time-critical clinical workflows.",root:"Clinical and administrative groups have different tolerance for friction.",trigger:"PHI conditions match for users in phased policy groups.",impact:"A big-bang rollout can damage clinical support and cause policy rollback.",solution:"Start with recommendations, use healthcare-specific guidance, monitor acceptance, and keep high-friction clinical roles on a user-guided path where needed.",outcome:"Label adoption grows while care workflows retain a controlled exception model.",deployment:"Client - Phased recommendation",compliance:"Healthcare",detection:"SIT",businessOutcome:"User Productivity",ux:"Use group-specific policy text, training, and dedicated feedback channels.",scale:"Measure acceptance by role; do not assume one enforcement model fits all users.",evidence:"Moderate",evidenceType:"Published Microsoft rollout guidance"},
+      {id:"RL-04",feature:"Recommended Label",name:"Recommendation with downgrade justification",problem:"Users need flexibility to reject a suggested label, but compliance teams need accountable decisions.",root:"A recommendation without telemetry cannot distinguish valid exceptions from avoidance.",trigger:"The user dismisses, removes, or downgrades a label where policy requires justification.",impact:"Unexplained overrides weaken auditability and classifier tuning.",solution:"Require a business justification for downgrade where supported and review audit patterns with content owners.",outcome:"Exceptions remain possible while producing evidence for policy improvement and targeted education.",deployment:"Client - Interactive",compliance:"Data Protection",detection:"Classifier + User Decision",businessOutcome:"Governance",ux:"Use short reason choices where possible and avoid repetitive prompts.",scale:"Analyze repeated overrides by rule, group, and content type.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"RL-05",feature:"Recommended Label",name:"Recommended UDP label for document collaboration",problem:"A document contains sensitive data and needs ad-hoc recipients, but administrator-defined permissions are too broad or too static.",root:"Automatic application cannot complete a protection action that requires the user to choose recipients and rights.",trigger:"A supported client-side condition matches in Word, Excel, or PowerPoint and recommends a label configured to let users assign permissions.",impact:"Without guidance, users may leave the document unprotected or choose an unsuitable fixed-permission label.",solution:"Recommend the UDP sensitivity label; when the user accepts, prompt them to select users, groups, organizations, and permission levels before applying encryption.",outcome:"The user receives timely guidance while retaining control over the document's authorized audience.",deployment:"Client - Recommended UDP",compliance:"Data Protection",detection:"SIT or Classifier",businessOutcome:"User Productivity",ux:"This is interactive by design; train users to choose recipients and understand offline access and expiration settings.",scale:"Validate supported Office experiences and do not represent UDP as silently auto-applied.",evidence:"Strong",evidenceType:"Published Microsoft guidance"},
+
+      {id:"UDP-01",feature:"User-Defined Permissions",name:"Executive and board Do Not Forward email",problem:"Executive communications need recipient-bound protection without administrators predefining every audience.",root:"Recipients change for each message and forwarding risk is material.",trigger:"The sender selects a Do Not Forward UDP label in Outlook for a specific message.",impact:"Forwarded board or transaction information can reach unintended recipients.",solution:"Use a sender-applied UDP label that restricts forwarding, copying, and printing according to the supported email experience.",outcome:"Access remains bound to the original authorized recipients.",deployment:"Manual interactive - Outlook",compliance:"Financial Regulations",detection:"User Decision",businessOutcome:"Data Protection",ux:"Explain recipient behavior, external access, and supported clients before rollout.",scale:"Keep the label set simple and monitor support issues caused by client differences.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"UDP-02",feature:"User-Defined Permissions",name:"External partner Encrypt-Only email",problem:"Teams must protect external email while allowing recipients more normal collaboration than Do Not Forward permits.",root:"Fixed internal-only encryption prevents legitimate partner work.",trigger:"The sender selects Encrypt-Only or the approved UDP email option for external recipients.",impact:"Users otherwise send unprotected email or move collaboration to unmanaged channels.",solution:"Provide an approved user-driven encryption option and clear guidance on when to use it instead of restrictive labels.",outcome:"External communication is encrypted while preserving the intended partner workflow.",deployment:"Manual interactive - Outlook",compliance:"Privacy",detection:"User Decision",businessOutcome:"User Productivity",ux:"Train users on the difference between Encrypt-Only, Do Not Forward, and fixed-permission labels.",scale:"Test common external identities, guests, and partner clients.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"UDP-03",feature:"User-Defined Permissions",name:"Legal matter document with custom recipients",problem:"Each legal matter has a distinct set of attorneys, experts, and business stakeholders.",root:"Administrator-defined permissions cannot anticipate every matter team.",trigger:"The author applies a UDP document label and selects the current matter participants and usage rights.",impact:"Overly broad fixed groups expose privileged or confidential material.",solution:"Let the author define recipients and permissions when applying the label, with legal guidance and recovery controls.",outcome:"The document remains encrypted for the intended matter team wherever it travels.",deployment:"Manual interactive - Office document",compliance:"Data Protection",detection:"User Decision",businessOutcome:"Data Protection",ux:"Ensure authorized recovery and eDiscovery processes are understood.",scale:"Use matter-management guidance and avoid creating many near-duplicate UDP labels.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"UDP-04",feature:"User-Defined Permissions",name:"Project-based contractor access",problem:"Contractors require time-bound access to selected project documents but not the entire department.",root:"Broad group permissions persist beyond the immediate collaboration need.",trigger:"The document owner selects contractor identities, edit or view rights, and an approved expiration when applying the UDP label.",impact:"Excess access increases third-party and offboarding risk.",solution:"Use per-document UDP for bounded collaboration and pair it with identity lifecycle and project-close review.",outcome:"Contractors receive only the rights and documents needed for the project.",deployment:"Manual interactive - Office document",compliance:"Data Protection",detection:"User Decision",businessOutcome:"Risk Reduction",ux:"Authors must understand recipient selection, expiration, and the consequences of removing access.",scale:"Use fixed-permission labels instead when the same audience repeats at high volume.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"UDP-05",feature:"User-Defined Permissions",name:"M&A deal-document collaboration",problem:"Deal teams change rapidly and include selected internal and external advisors.",root:"Static labels either grant too much access or require constant administrator changes.",trigger:"The deal-document owner applies a UDP label to a specific file and selects the authorized deal team.",impact:"Transaction information can leak, creating market and negotiation risk.",solution:"Use UDP for file-level audiences and combine it with a restricted SharePoint or Teams container label for site-level sharing posture.",outcome:"The workspace and individual documents have complementary access controls.",deployment:"Manual document + Service container",compliance:"Financial Regulations",detection:"User Decision + Metadata",businessOutcome:"Risk Reduction",ux:"Explain that container labels and file permissions are independent controls.",scale:"Use fixed groups for stable core teams and UDP only for exceptional document audiences.",evidence:"Strong",evidenceType:"Published Microsoft pattern"},
+      {id:"UDP-06",feature:"User-Defined Permissions",name:"Preserve legacy custom permissions during modernization",problem:"Automatically applying a fixed encrypted label could replace legacy ad-hoc permissions and break legitimate access.",root:"The migration must preserve document-specific audiences that are not represented by one administrator-defined label.",trigger:"Sensitive content is detected when a legacy-protected file is opened or edited.",impact:"A poorly designed auto-label rollout can lock out authorized users or broaden access.",solution:"Use recommended client-side labeling and guide the user to apply a UDP label with the intended recipients rather than silently replacing permissions.",outcome:"Protection modernization proceeds while preserving the document's business-specific access model.",deployment:"Client - Recommended UDP migration",compliance:"Data Protection",detection:"SIT + Existing Protection State",businessOutcome:"Governance",ux:"Provide explicit instructions for transferring recipients and audit overrides.",scale:"Plan a separate legacy-rights inventory and migration strategy; do not rely on prompts alone.",evidence:"Strong",evidenceType:"Published Microsoft guidance"}
+    ];
+
+    const state = { view: "feature", filtered: scenarios };
+    const completionStorageKey = "purview-labeling-scenario-completion-v1";
+    const implementationStorageKey = "purview-labeling-implementation-records-v1";
+    const readinessStorageKey = "purview-labeling-readiness-v1";
+    const privacyStorageKey = "purview-labeling-privacy-notice-v1";
+    const loadCompletedScenarios = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(completionStorageKey) || "[]");
+        return new Set(Array.isArray(stored) ? stored.filter(id => scenarios.some(s => s.id === id)) : []);
+      } catch (error) {
+        console.warn("Unable to read saved scenario completion data.", error);
+        return new Set();
+      }
+    };
+    const completedScenarios = loadCompletedScenarios();
+    const loadJsonState = (key, fallback) => {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || "null");
+        return value && typeof value === "object" ? value : fallback;
+      } catch (error) {
+        console.warn(`Unable to read ${key}.`, error);
+        return fallback;
+      }
+    };
+    const implementationRecords = loadJsonState(implementationStorageKey, {});
+    const readinessState = loadJsonState(readinessStorageKey, {});
+    const readinessItems = [
+      { id:"license", title:"Licensing confirmed", note:"Validate licensing by feature and workload, not with one generic E3/E5 assumption." },
+      { id:"roles", title:"Least-privilege roles assigned", note:"Confirm Information Protection, DLP, Content Explorer, Audit, and delegated administration roles." },
+      { id:"taxonomy", title:"Label taxonomy approved", note:"Business owners approve label names, priority, descriptions, encryption, and downgrade behaviour." },
+      { id:"published", title:"Labels created and published", note:"Confirm target users receive the expected label policy and client applications support it." },
+      { id:"spo", title:"SharePoint/OneDrive processing enabled", note:"Enable sensitivity-label processing and validate supported file and encryption states." },
+      { id:"audit", title:"Audit and monitoring available", note:"Confirm Activity Explorer, Audit, alerts, Content Explorer roles, and retention requirements." },
+      { id:"devices", title:"Endpoint devices healthy", note:"Onboard devices, validate supported versions, connectivity, and advanced classification where required." },
+      { id:"validators", title:"Business validators nominated", note:"Administrators validate configuration; data owners validate whether sampled matches are truly sensitive." },
+      { id:"support", title:"Support and rollback prepared", note:"Document owner, diagnostic evidence, escalation path, rollback action, and change window." }
+    ];
+    const portalRoutes = {
+      labels: { label: "Sensitivity labels", url: "https://purview.microsoft.com/solutions/informationprotection/sensitivitylabels" },
+      labelPolicies: { label: "Label publishing policies", url: "https://purview.microsoft.com/solutions/informationprotection/labelpolicies" },
+      autoLabeling: { label: "Auto-labeling policies", url: "https://purview.microsoft.com/solutions/informationprotection/autolabeling" },
+      classifiers: { label: "Classifiers and sensitive info types", url: "https://purview.microsoft.com/solutions/dataclassification/classifiers" },
+      dlpPolicies: { label: "DLP policies", url: "https://purview.microsoft.com/solutions/datalossprevention/policies" },
+      endpointDlp: { label: "Endpoint DLP settings", url: "https://purview.microsoft.com/solutions/datalossprevention/settings" }
+    };
+    const fields = {
+      feature: "feature",
+      compliance: "compliance",
+      detection: "detection",
+      outcome: "businessOutcome"
+    };
+
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" })[char]);
+    const unique = key => [...new Set(scenarios.map(s => s[key]))].sort((a,b) => a.localeCompare(b));
+    const portalTargets = scenario => {
+      if (scenario.id === "CL-05") return [portalRoutes.labels, portalRoutes.dlpPolicies, portalRoutes.endpointDlp];
+      if (scenario.id === "CC-08") return [portalRoutes.labels, portalRoutes.autoLabeling];
+      if (scenario.feature === "Service-Side AutoLabel") return [portalRoutes.labels, portalRoutes.autoLabeling];
+      if (scenario.feature === "Client-Side AutoLabel") return [portalRoutes.labels, portalRoutes.labelPolicies];
+      if (scenario.feature === "SIT-Based Use Case") return [portalRoutes.classifiers, portalRoutes.labels, portalRoutes.autoLabeling];
+      if (scenario.feature === "Conditions & Classifiers") return [portalRoutes.classifiers, portalRoutes.autoLabeling];
+      if (scenario.feature === "Recommended Label") return [portalRoutes.labels, portalRoutes.labelPolicies];
+      if (scenario.feature === "User-Defined Permissions") return [portalRoutes.labels, portalRoutes.labelPolicies];
+      return [portalRoutes.labels];
+    };
+    const portalHtml = scenario => portalTargets(scenario).map(target =>
+      `<a class="portal-link" href="${target.url}" target="_blank" rel="noreferrer">${escapeHtml(target.label)} &nearr;</a>`
+    ).join("");
+    const isCompleted = id => completedScenarios.has(id);
+    const recordFor = id => implementationRecords[id] ||= {
+      status: "Not started",
+      owner: "",
+      businessOwner: "",
+      targetDate: "",
+      simulationDate: "",
+      mode: "Design",
+      matched: "",
+      falsePositives: "",
+      approval: "Pending",
+      approver: "",
+      evidenceUrl: "",
+      exceptionType: "None",
+      exceptionOwner: "",
+      exceptionReviewDate: "",
+      notes: "",
+      tests: {}
+    };
+    const phaseFor = scenario => {
+      if (scenario.feature === "SIT-Based Use Case" || scenario.feature === "Conditions & Classifiers") return "Phase 1: Know your data";
+      if (scenario.feature === "Recommended Label" || scenario.feature === "Client-Side AutoLabel" || scenario.feature === "User-Defined Permissions") return "Phase 2: Classify and label";
+      if (scenario.feature === "Service-Side AutoLabel") return "Phase 3: Protect and remediate";
+      return "Phase 4: Operate and govern";
+    };
+    const licenseFor = scenario => {
+      if (scenario.detection === "EDM" || scenario.detection === "Trainable Classifier" || scenario.detection === "Named Entity") return "Confirm E5 feature entitlement";
+      if (scenario.feature.includes("AutoLabel")) return "Confirm automatic-labeling entitlement";
+      return "Confirm sensitivity-label entitlement";
+    };
+    const rolesFor = scenario => scenario.feature.includes("SIT") || scenario.feature.includes("Classifiers")
+      ? "Information Protection + classifier administration"
+      : scenario.id === "CL-05"
+        ? "Information Protection + DLP Compliance Management"
+        : "Information Protection administration";
+    const testCasesFor = scenario => [
+      "Known-positive content matches",
+      "Known-negative content does not match",
+      "Below/above confidence or instance threshold",
+      scenario.deployment.includes("Client") ? "Desktop and web application behaviour" : "Scoped and excluded locations",
+      "Lower- and higher-priority label conflict",
+      "Encrypted, locked, or unsupported file state",
+      "Expected audit, alert, or policy evidence",
+      "Rollback and exception path"
+    ];
+    const evidenceReady = scenario => {
+      const record = recordFor(scenario.id);
+      const exceptionApproved = record.exceptionType !== "None" && record.exceptionOwner && record.exceptionReviewDate;
+      return (record.status === "Active" && record.approval === "Approved" && record.approver && record.evidenceUrl) || exceptionApproved;
+    };
+    const completionControlHtml = scenario => `
+      <label class="completion-control">
+        <input type="checkbox" data-completion-id="${scenario.id}" ${isCompleted(scenario.id) ? "checked" : ""}>
+        <span>${isCompleted(scenario.id) ? "Completed" : "Mark complete"}</span>
+      </label>`;
+    const saveCompletedScenarios = () => {
+      try {
+        localStorage.setItem(completionStorageKey, JSON.stringify([...completedScenarios]));
+      } catch (error) {
+        console.error("Unable to save scenario completion data.", error);
+      }
+    };
+    const saveImplementationRecords = () => {
+      try {
+        localStorage.setItem(implementationStorageKey, JSON.stringify(implementationRecords));
+      } catch (error) {
+        console.error("Unable to save implementation records.", error);
+      }
+    };
+    const saveReadiness = () => {
+      try {
+        localStorage.setItem(readinessStorageKey, JSON.stringify(readinessState));
+      } catch (error) {
+        console.error("Unable to save readiness state.", error);
+      }
+    };
+    const bindCompletionControls = container => {
+      container.querySelectorAll("[data-completion-id]").forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) completedScenarios.add(checkbox.dataset.completionId);
+          else completedScenarios.delete(checkbox.dataset.completionId);
+          saveCompletedScenarios();
+          renderMetrics();
+          renderPosture();
+          renderScenarioIndex();
+          render();
+        });
+      });
+    };
+    const bindImplementationRecord = (container, scenario) => {
+      container.querySelectorAll("[data-record-field]").forEach(control => {
+        const update = () => {
+          recordFor(scenario.id)[control.dataset.recordField] = control.value;
+          saveImplementationRecords();
+          renderMetrics();
+          renderPosture();
+          renderCards();
+          renderTable();
+          document.getElementById("liveRegion").textContent = `${scenario.id} implementation record updated.`;
+        };
+        control.addEventListener(control.tagName === "SELECT" || control.type === "date" ? "change" : "input", update);
+      });
+      container.querySelectorAll("[data-test-index]").forEach(control => control.addEventListener("change", () => {
+        recordFor(scenario.id).tests[control.dataset.testIndex] = control.checked;
+        saveImplementationRecords();
+        document.getElementById("liveRegion").textContent = `${scenario.id} validation test updated.`;
+      }));
+    };
+
+    function fillSelect(id, key) {
+      const select = document.getElementById(id);
+      unique(key).forEach(value => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    }
+
+    function renderMetrics() {
+      const evidenceCount = scenarios.filter(evidenceReady).length;
+      const metrics = [
+        [scenarios.length, "Consolidated scenarios"],
+        [scenarios.filter(s => s.deployment.startsWith("Service")).length, "Service-led patterns"],
+        [scenarios.filter(s => s.deployment.startsWith("Client")).length, "Client-led patterns"],
+        [scenarios.filter(s => s.feature === "Recommended Label").length, "Recommendation scenarios"],
+        [`${Math.round(completedScenarios.size / scenarios.length * 100)}%`, "Checklist completion"],
+        [`${Math.round(evidenceCount / scenarios.length * 100)}%`, "Evidence-ready posture"]
+      ];
+      document.getElementById("metrics").innerHTML = metrics.map(([value,label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
+    }
+
+    function renderReadiness() {
+      const container = document.getElementById("readinessGrid");
+      container.innerHTML = readinessItems.map(item => `
+        <div class="readiness-item">
+          <label><input type="checkbox" data-readiness-id="${item.id}" ${readinessState[item.id] ? "checked" : ""}><span>${escapeHtml(item.title)}</span></label>
+          <p class="muted" style="font-size:13px;margin-top:6px">${escapeHtml(item.note)}</p>
+        </div>`).join("");
+      container.querySelectorAll("[data-readiness-id]").forEach(input => input.addEventListener("change", () => {
+        readinessState[input.dataset.readinessId] = input.checked;
+        saveReadiness();
+        document.getElementById("liveRegion").textContent = `${input.closest(".readiness-item").querySelector("span").textContent} ${input.checked ? "completed" : "reopened"}.`;
+      }));
+    }
+
+    function renderWizardResult(matches, pattern) {
+      const result = document.getElementById("wizardResult");
+      result.innerHTML = `
+        <div class="wizard-result">
+          <h3>Recommended pattern: ${escapeHtml(pattern)}</h3>
+          <p class="muted">Complementary controls should be validated through readiness, simulation, evidence, and workload-specific tests.</p>
+          <div class="badge-row" style="margin-top:10px">${matches.slice(0,8).map(s => `<a class="portal-link" href="#scenario-${s.id}" data-wizard-scenario="${s.id}">${s.id}: ${escapeHtml(s.name)}</a>`).join("")}</div>
+        </div>`;
+      result.querySelectorAll("[data-wizard-scenario]").forEach(link => link.addEventListener("click", event => {
+        event.preventDefault();
+        state.filtered = scenarios;
+        render();
+        requestAnimationFrame(() => document.getElementById(`scenario-${link.dataset.wizardScenario}`)?.scrollIntoView({behavior:"smooth",block:"center"}));
+      }));
+    }
+
+    function runWizard() {
+      const outcome = document.getElementById("wizardOutcome").value;
+      const location = document.getElementById("wizardLocation").value;
+      const timing = document.getElementById("wizardTiming").value;
+      const action = document.getElementById("wizardAction").value;
+      let feature = "";
+      let pattern = "Layered Information Protection and DLP";
+      if (action === "Recommend" || outcome === "Educate users") { feature = "Recommended Label"; pattern = "Client-side recommended labeling"; }
+      else if (timing === "During authoring" || location === "Office apps") { feature = "Client-Side AutoLabel"; pattern = "Client-side labeling during authoring"; }
+      else if (timing === "When stored or emailed" || timing === "Retroactively" || location === "SharePoint/OneDrive" || location === "Exchange") { feature = "Service-Side AutoLabel"; pattern = "Service-side auto-labeling"; }
+      else if (action === "Encrypt or restrict access") { feature = "User-Defined Permissions"; pattern = "Sensitivity label with rights management"; }
+      else if (outcome === "Discover sensitive data") { feature = "Conditions & Classifiers"; pattern = "Classification-first discovery"; }
+      let matches = feature ? scenarios.filter(s => s.feature === feature) : scenarios.filter(s => `${s.problem} ${s.solution} ${s.deployment}`.toLowerCase().includes(location.toLowerCase().split("/")[0]));
+      if (!matches.length) matches = scenarios.slice(0,8);
+      renderWizardResult(matches, pattern);
+    }
+
+    function renderPosture() {
+      const completed = completedScenarios.size;
+      const percentage = Math.round(completed / scenarios.length * 100);
+      const evidenceCount = scenarios.filter(evidenceReady).length;
+      const evidencePercentage = Math.round(evidenceCount / scenarios.length * 100);
+      document.getElementById("postureSummary").innerHTML = `
+        <div class="posture-summary">
+          <div class="posture-score">${percentage}%</div>
+          <div>
+            <h3>${completed} of ${scenarios.length} scenarios completed</h3>
+            <p class="muted" style="margin-bottom:10px">${scenarios.length - completed} scenarios remain to reach the catalog's full implementation posture.</p>
+            <div class="posture-meter" role="progressbar" aria-label="Overall implementation compliance posture" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percentage}">
+              <div class="posture-fill" style="width:${percentage}%"></div>
+            </div>
+            <p class="muted" style="margin-top:10px"><b>${evidenceCount} evidence-ready (${evidencePercentage}%)</b>: Active with approval, approver, and evidence URL, or covered by a time-bound approved exception.</p>
+          </div>
+        </div>`;
+      const groups = scenarios.reduce((acc, scenario) => {
+        const group = acc[scenario.feature] ||= { total: 0, completed: 0 };
+        group.total += 1;
+        if (isCompleted(scenario.id)) group.completed += 1;
+        return acc;
+      }, {});
+      document.getElementById("postureBreakdown").innerHTML = Object.entries(groups).map(([feature, progress]) => {
+        const categoryPercentage = Math.round(progress.completed / progress.total * 100);
+        return `<div class="posture-item">
+          <b>${escapeHtml(feature)}</b>
+          <span>${progress.completed} of ${progress.total} completed (${categoryPercentage}%)</span>
+          <div class="posture-meter" style="height:8px;margin-top:8px"><div class="posture-fill" style="width:${categoryPercentage}%"></div></div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderScenarioIndex() {
+      const groups = scenarios.reduce((acc, scenario) => {
+        (acc[scenario.feature] ||= []).push(scenario);
+        return acc;
+      }, {});
+      document.getElementById("scenarioIndex").innerHTML = Object.entries(groups).map(([feature, items]) => `
+        <div class="index-group">
+          <h3>${escapeHtml(feature)}</h3>
+          <div class="index-list">${items.map(s => `
+            <a class="index-link ${isCompleted(s.id) ? "done" : ""}" href="#scenario-${s.id}" data-scenario-id="${s.id}">
+              <span class="id">${s.id}</span><span>${isCompleted(s.id) ? "✓ " : ""}${escapeHtml(s.name)}</span>
+            </a>`).join("")}
+          </div>
+        </div>`).join("");
+      document.getElementById("scenarioIndex").onclick = event => {
+        const link = event.target.closest("[data-scenario-id]");
+        if (!link) return;
+        event.preventDefault();
+        ["search","featureFilter","complianceFilter","detectionFilter","outcomeFilter"].forEach(id => {
+          document.getElementById(id).value = "";
+        });
+        state.filtered = scenarios;
+        document.getElementById("displayMode").value = "cards";
+        document.getElementById("cards").hidden = false;
+        document.getElementById("tableWrap").hidden = true;
+        render();
+        requestAnimationFrame(() => {
+          const card = document.getElementById(`scenario-${link.dataset.scenarioId}`);
+          history.replaceState(null, "", `#scenario-${link.dataset.scenarioId}`);
+          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      };
+    }
+
+    function applyFilters() {
+      const query = document.getElementById("search").value.trim().toLowerCase();
+      const feature = document.getElementById("featureFilter").value;
+      const compliance = document.getElementById("complianceFilter").value;
+      const detection = document.getElementById("detectionFilter").value;
+      const outcome = document.getElementById("outcomeFilter").value;
+      state.filtered = scenarios.filter(s => {
+        const haystack = Object.values(s).flat().join(" ").toLowerCase();
+        return (!query || haystack.includes(query)) &&
+          (!feature || s.feature === feature) &&
+          (!compliance || s.compliance === compliance) &&
+          (!detection || s.detection === detection) &&
+          (!outcome || s.businessOutcome === outcome);
+      });
+      render();
+    }
+
+    function renderChart() {
+      const key = fields[state.view];
+      const counts = state.filtered.reduce((acc, scenario) => {
+        acc[scenario[key]] = (acc[scenario[key]] || 0) + 1;
+        return acc;
+      }, {});
+      const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+      const max = Math.max(...entries.map(entry => entry[1]), 1);
+      document.getElementById("chart").innerHTML = entries.length ? entries.map(([label,count]) =>
+        `<div class="chart-item"><div class="chart-label"><span>${escapeHtml(label)}</span><b>${count}</b></div><div class="bar"><span style="width:${Math.round(count / max * 100)}%"></span></div></div>`
+      ).join("") : `<div class="empty">No scenarios match the current filters.</div>`;
+    }
+
+    function renderCards() {
+      const container = document.getElementById("cards");
+      container.innerHTML = state.filtered.length ? state.filtered.map(s => {
+        const record = recordFor(s.id);
+        return `
+        <article class="card ${isCompleted(s.id) ? "completed" : ""}" id="scenario-${s.id}">
+          <div class="card-top"><div><div class="id">${s.id}</div><h3>${escapeHtml(s.name)}</h3></div><span class="badge ${s.evidence.toLowerCase()}">${s.evidence}</span></div>
+          ${completionControlHtml(s)}
+          <div class="badge-row"><span class="status-badge ${record.status.toLowerCase().replaceAll(" ","-")}">${escapeHtml(record.status)}</span><span class="badge">${escapeHtml(phaseFor(s))}</span><span class="badge">${escapeHtml(s.feature)}</span><span class="badge">${escapeHtml(s.deployment)}</span><span class="badge">${escapeHtml(s.detection)}</span></div>
+          <p class="problem">${escapeHtml(s.problem)}</p>
+          <div class="badge-row"><span class="badge">${escapeHtml(s.compliance)}</span><span class="badge">${escapeHtml(s.businessOutcome)}</span></div>
+          <div class="record-summary">
+            <div><b>License</b><br>${escapeHtml(licenseFor(s))}</div>
+            <div><b>Roles</b><br>${escapeHtml(rolesFor(s))}</div>
+            <div><b>Owner</b><br>${escapeHtml(record.owner || "Not assigned")}</div>
+            <div><b>Evidence</b><br>${evidenceReady(s) ? "Ready" : "Required"}</div>
+          </div>
+          <div class="portal-links" aria-label="Purview configuration links">${portalHtml(s)}</div>
+          <button class="details" data-id="${s.id}">View implementation details</button>
+        </article>`;
+      }).join("") : `<div class="empty">No scenarios match the current filters.</div>`;
+      container.querySelectorAll(".details").forEach(button => button.addEventListener("click", () => openDetails(button.dataset.id)));
+      bindCompletionControls(container);
+    }
+
+    function renderTable() {
+      document.getElementById("tableBody").innerHTML = state.filtered.map(s => `
+        <tr>
+          <td>${completionControlHtml(s)}<br><span class="status-badge ${recordFor(s.id).status.toLowerCase().replaceAll(" ","-")}">${escapeHtml(recordFor(s.id).status)}</span></td>
+          <td>${escapeHtml(s.name)}<br><span class="id">${s.id}</span></td>
+          <td>${escapeHtml(s.problem)}</td>
+          <td>${escapeHtml(s.trigger)}</td>
+          <td>${escapeHtml(s.impact)}</td>
+          <td>${escapeHtml(s.solution)}</td>
+          <td>${escapeHtml(s.outcome)}</td>
+          <td>${escapeHtml(s.deployment)}</td>
+          <td><div class="portal-links">${portalHtml(s)}</div></td>
+        </tr>`).join("");
+      bindCompletionControls(document.getElementById("tableBody"));
+    }
+
+    function render() {
+      document.getElementById("resultCount").textContent = `${state.filtered.length} of ${scenarios.length} scenarios shown`;
+      renderChart();
+      renderCards();
+      renderTable();
+    }
+
+    function openDetails(id) {
+      const s = scenarios.find(item => item.id === id);
+      const record = recordFor(id);
+      const testCases = testCasesFor(s);
+      document.getElementById("dialogId").textContent = s.id;
+      document.getElementById("dialogTitle").textContent = s.name;
+      document.getElementById("dialogBody").innerHTML = `
+        <div style="margin-bottom:14px">${completionControlHtml(s)}</div>
+        <div class="badge-row" style="margin-bottom:14px"><span class="badge">${escapeHtml(s.feature)}</span><span class="badge">${escapeHtml(s.compliance)}</span><span class="badge">${escapeHtml(s.detection)}</span><span class="badge ${s.evidence.toLowerCase()}">${s.evidence}: ${escapeHtml(s.evidenceType)}</span></div>
+        <div class="detail-grid">
+          <div class="detail-block"><b>Customer problem</b><p>${escapeHtml(s.problem)}</p></div>
+          <div class="detail-block"><b>Why existing controls were insufficient</b><p>${escapeHtml(s.root)}</p></div>
+          <div class="detail-block"><b>Trigger / condition</b><p>${escapeHtml(s.trigger)}</p></div>
+          <div class="detail-block"><b>Business impact</b><p>${escapeHtml(s.impact)}</p></div>
+          <div class="detail-block full"><b>Solution implemented</b><p>${escapeHtml(s.solution)}</p></div>
+          <div class="detail-block"><b>Remediation outcome</b><p>${escapeHtml(s.outcome)}</p></div>
+          <div class="detail-block"><b>End-user experience</b><p>${escapeHtml(s.ux)}</p></div>
+          <div class="detail-block"><b>Scale and deployment considerations</b><p>${escapeHtml(s.scale)}</p></div>
+          <div class="detail-block"><b>Dashboard category</b><p>${escapeHtml(s.businessOutcome)} / ${escapeHtml(s.deployment)}</p></div>
+          <div class="detail-block full"><b>Prerequisites</b><p><strong>Phase:</strong> ${escapeHtml(phaseFor(s))}<br><strong>Licensing:</strong> ${escapeHtml(licenseFor(s))}<br><strong>Roles:</strong> ${escapeHtml(rolesFor(s))}<br><strong>Shared dependencies:</strong> Published labels, workload readiness, auditing, business validation, support ownership, and rollback plan.</p></div>
+          <div class="detail-block full">
+            <b>Implementation and evidence record</b>
+            <div class="form-grid" data-record-id="${s.id}">
+              <div class="field"><span>Lifecycle status</span><select data-record-field="status">${["Not started","Designing","Simulation","Pilot","Active","Blocked","Exception"].map(value => `<option ${record.status === value ? "selected" : ""}>${value}</option>`).join("")}</select></div>
+              <div class="field"><span>Technical owner</span><input data-record-field="owner" value="${escapeHtml(record.owner)}" placeholder="Name or team"></div>
+              <div class="field"><span>Business/data owner</span><input data-record-field="businessOwner" value="${escapeHtml(record.businessOwner)}" placeholder="Name or team"></div>
+              <div class="field"><span>Target date</span><input type="date" data-record-field="targetDate" value="${escapeHtml(record.targetDate)}"></div>
+              <div class="field"><span>Simulation/test date</span><input type="date" data-record-field="simulationDate" value="${escapeHtml(record.simulationDate)}"></div>
+              <div class="field"><span>Policy mode</span><select data-record-field="mode">${["Design","Simulation","Audit/Test","Warn","Block","Active"].map(value => `<option ${record.mode === value ? "selected" : ""}>${value}</option>`).join("")}</select></div>
+              <div class="field"><span>Items matched</span><input type="number" min="0" data-record-field="matched" value="${escapeHtml(record.matched)}"></div>
+              <div class="field"><span>False positives</span><input type="number" min="0" data-record-field="falsePositives" value="${escapeHtml(record.falsePositives)}"></div>
+              <div class="field"><span>Go-live decision</span><select data-record-field="approval">${["Pending","Approved","Hold","Approved with exception"].map(value => `<option ${record.approval === value ? "selected" : ""}>${value}</option>`).join("")}</select></div>
+              <div class="field"><span>Approver</span><input data-record-field="approver" value="${escapeHtml(record.approver)}" placeholder="Approver or CAB"></div>
+              <div class="field"><span>Evidence URL</span><input type="url" data-record-field="evidenceUrl" value="${escapeHtml(record.evidenceUrl)}" placeholder="Ticket, report, or secured evidence"></div>
+              <div class="field"><span>Exception type</span><select data-record-field="exceptionType">${["None","Deferred","Partial coverage","Permanent exclusion","Business override"].map(value => `<option ${record.exceptionType === value ? "selected" : ""}>${value}</option>`).join("")}</select></div>
+              <div class="field"><span>Exception owner</span><input data-record-field="exceptionOwner" value="${escapeHtml(record.exceptionOwner)}"></div>
+              <div class="field"><span>Exception review date</span><input type="date" data-record-field="exceptionReviewDate" value="${escapeHtml(record.exceptionReviewDate)}"></div>
+              <div class="field full"><span>Implementation, risk, rollback, or troubleshooting notes</span><textarea data-record-field="notes">${escapeHtml(record.notes)}</textarea></div>
+            </div>
+          </div>
+          <div class="detail-block full"><b>Reusable validation matrix</b><div class="test-list" data-test-record="${s.id}">${testCases.map((test,index) => `<label><input type="checkbox" data-test-index="${index}" ${record.tests[index] ? "checked" : ""}><span>${escapeHtml(test)}</span></label>`).join("")}</div></div>
+          <div class="detail-block full"><b>Configure this scenario in Microsoft Purview</b><div class="portal-links">${portalHtml(s)}</div></div>
+        </div>`;
+      bindCompletionControls(document.getElementById("dialogBody"));
+      bindImplementationRecord(document.getElementById("dialogBody"), s);
+      document.getElementById("detailDialog").showModal();
+    }
+
+    function exportCsv() {
+      const headers = ["Scenario ID","Completion Status","Lifecycle Status","Evidence Ready","Technical Owner","Business Owner","Target Date","Policy Mode","Go-Live Decision","Approver","Evidence URL","Exception Type","Exception Owner","Exception Review Date","Scenario Name","Feature","Phase","Licensing","Roles","Customer Problem Statement","Root Cause","Trigger/Condition","Business Impact","Solution Implemented","Remediation Outcome","Deployment Type","Compliance Driver","Detection Method","Business Outcome","End-User Experience","Scale Considerations","Evidence","Purview Configuration URLs","References"];
+      const rows = state.filtered.map(s => {
+        const record = recordFor(s.id);
+        return [s.id,isCompleted(s.id) ? "Completed" : "Not completed",record.status,evidenceReady(s) ? "Yes" : "No",record.owner,record.businessOwner,record.targetDate,record.mode,record.approval,record.approver,record.evidenceUrl,record.exceptionType,record.exceptionOwner,record.exceptionReviewDate,s.name,s.feature,phaseFor(s),licenseFor(s),rolesFor(s),s.problem,s.root,s.trigger,s.impact,s.solution,s.outcome,s.deployment,s.compliance,s.detection,s.businessOutcome,s.ux,s.scale,`${s.evidence} - ${s.evidenceType}`,portalTargets(s).map(target => `${target.label}: ${target.url}`).join(" | "),s.refs.map(key => sources[key].url || sources[key].title).join(" | ")];
+      });
+      const csv = [headers, ...rows].map(row => row.map(value => `"${String(value).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "purview-labeling-scenario-catalog.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportFullState() {
+      const payload = {
+        schemaVersion: 1,
+        exportedAt: new Date().toISOString(),
+        completedScenarioIds: [...completedScenarios],
+        implementationRecords,
+        readinessState
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "purview-labeling-playbook-state.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importFullState(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const payload = JSON.parse(reader.result);
+          if (payload.schemaVersion !== 1 || !Array.isArray(payload.completedScenarioIds) || typeof payload.implementationRecords !== "object" || typeof payload.readinessState !== "object") {
+            throw new Error("Unsupported or invalid playbook state file.");
+          }
+          completedScenarios.clear();
+          payload.completedScenarioIds.filter(id => scenarios.some(s => s.id === id)).forEach(id => completedScenarios.add(id));
+          Object.keys(implementationRecords).forEach(key => delete implementationRecords[key]);
+          Object.assign(implementationRecords, payload.implementationRecords);
+          Object.keys(readinessState).forEach(key => delete readinessState[key]);
+          Object.assign(readinessState, payload.readinessState);
+          saveCompletedScenarios();
+          saveImplementationRecords();
+          saveReadiness();
+          renderMetrics();
+          renderScenarioIndex();
+          renderPosture();
+          renderReadiness();
+          render();
+          document.getElementById("liveRegion").textContent = "Playbook state imported.";
+        } catch (error) {
+          alert(`Import failed: ${error.message}`);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearLocalState() {
+      if (!confirm("Clear all completion, readiness, implementation, evidence, and exception data stored by this playbook?")) return;
+      [completionStorageKey, implementationStorageKey, readinessStorageKey].forEach(key => localStorage.removeItem(key));
+      completedScenarios.clear();
+      Object.keys(implementationRecords).forEach(key => delete implementationRecords[key]);
+      Object.keys(readinessState).forEach(key => delete readinessState[key]);
+      renderMetrics();
+      renderScenarioIndex();
+      renderPosture();
+      renderReadiness();
+      render();
+      document.getElementById("liveRegion").textContent = "Local playbook progress cleared.";
+    }
+
+    fillSelect("featureFilter","feature");
+    fillSelect("complianceFilter","compliance");
+    fillSelect("detectionFilter","detection");
+    fillSelect("outcomeFilter","businessOutcome");
+    renderMetrics();
+    renderScenarioIndex();
+    renderPosture();
+    renderReadiness();
+    render();
+    if (localStorage.getItem(privacyStorageKey) === "dismissed") document.getElementById("privacyBanner").hidden = true;
+
+    ["search","featureFilter","complianceFilter","detectionFilter","outcomeFilter"].forEach(id => document.getElementById(id).addEventListener(id === "search" ? "input" : "change", applyFilters));
+    document.getElementById("viewTabs").addEventListener("click", event => {
+      const button = event.target.closest("[data-view]");
+      if (!button) return;
+      state.view = button.dataset.view;
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab === button));
+      renderChart();
+    });
+    document.getElementById("displayMode").addEventListener("change", event => {
+      const table = event.target.value === "table";
+      document.getElementById("cards").hidden = table;
+      document.getElementById("tableWrap").hidden = !table;
+    });
+    document.getElementById("export").addEventListener("click", exportCsv);
+    document.getElementById("exportJson").addEventListener("click", exportFullState);
+    document.getElementById("importJsonButton").addEventListener("click", () => document.getElementById("importJson").click());
+    document.getElementById("importJson").addEventListener("change", event => {
+      const [file] = event.target.files;
+      if (file) importFullState(file);
+      event.target.value = "";
+    });
+    document.getElementById("clearData").addEventListener("click", clearLocalState);
+    document.getElementById("dismissPrivacy").addEventListener("click", () => {
+      localStorage.setItem(privacyStorageKey, "dismissed");
+      document.getElementById("privacyBanner").hidden = true;
+    });
+    document.getElementById("runWizard").addEventListener("click", runWizard);
+    document.getElementById("resetWizard").addEventListener("click", () => {
+      ["wizardOutcome","wizardLocation","wizardTiming","wizardAction","wizardTravel","wizardMaturity"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("wizardResult").innerHTML = "";
+    });
+    document.getElementById("closeDialog").addEventListener("click", () => document.getElementById("detailDialog").close());
+    document.getElementById("detailDialog").addEventListener("click", event => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
+    });
+  </script>
+
+
+</body></html>
